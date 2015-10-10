@@ -45,11 +45,14 @@ float[]       myAudioData      = new float[myAudioRange];
 HDrawablePool rectPool;
 HDrawablePool orbPool;
 HSwarm 				swarm;
+HCanvas				canvasBottom;
+HCanvas				canvasTop;
+
 int           poolCols         = 7;
 int           poolRows         = 7;
 int           poolDepth        = 7;
 
-//                                v BASE = orange            v SNARE = blue
+//                               v BASE = orange            v SNARE = blue
 int[]       palette          = {0xffFF3300, 0xffFF620C, 0xffFF9519, 0xff0095A8, 0xffFFC725, 0xffF8EF33, 0xffFFFF33, 0xffCCEA4A, 0xff9AD561, 0xff64BE7A, 0xff2EA893};
 
 int           rotateNumX       = 0;
@@ -62,20 +65,24 @@ public void setup() {
 	
 	H.init(this).background(0xff000000).use3D(true).autoClear(true);
 
+	canvasBottom = new HCanvas(700, 700, P3D).autoClear(false).fade(2);
+	H.add(canvasBottom);
+
 	minim   = new Minim(this);
 	in = minim.getLineIn(); // getLineIn(type, bufferSize, sampleRate, bitDepth);
 
-	// Fast Fourier Transform on incoming audio input
+	// Fast Fourier Transform
 	myAudioFFT = new FFT(in.bufferSize(), in.sampleRate());
 	println("bufferSize: " + in.bufferSize() + " . . . " + "sampleRate: " + in.sampleRate());
 	myAudioFFT.linAverages(myAudioRange);
 	myAudioFFT.window(FFT.GAUSS);
 
+	// Swarm
 	swarm = new HSwarm()
 		.speed(4)
 		.turnEase(0.025f)
-		.twitch(15)
-		.idleGoal(width/2,height/2)
+		.twitch(20)
+		.addGoal((int)(random(0, 700)), (int)(random(0, 700)), (int)(random(0, 700)))
 	;
 
 	// Orbs
@@ -88,7 +95,7 @@ public void setup() {
 					HSphere d = (HSphere) obj;
 					d
 						.size(10)
-						.loc((int)(random(0, 700)), (int)(random(0, 700)))
+						.loc((int)(random(0, 700)), (int)(random(0, 700)), (int)(random(0, 700)))
 						.strokeWeight(0)
 						.noStroke()
 						.fill(255, PApplet.parseInt(random(50, 200)))
@@ -150,6 +157,8 @@ public void draw() {
 		H.drawStage();
 	popMatrix();
 
+	// Audio Processing
+
 	for (HDrawable d : rectPool) {
 		HBundle tempExtra = d.extras();
 		int i = (int)tempExtra.num("i");
@@ -163,16 +172,6 @@ public void draw() {
 		// println("Input: " + in.mix.level() + " . . . ." + "soundWeight: " + soundWeight);
 		// println(fftZ);
 	}
-
-	// swarm.addTarget(
-	// 	canvas.add(
-	// 		new HRect(8,2)
-	// 			.rounding(4)
-	// 			.anchorAt( H.CENTER )
-	// 			.noStroke()
-	// 			.fill(colors.getColor())
-	// 	)
-	// );
 
 	if (showVisualizer) myAudioDataWidget();
 }
