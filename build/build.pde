@@ -1,11 +1,9 @@
 import ddf.minim.*;
 import ddf.minim.analysis.*;
-// import themidibus.*;
 
 Minim         minim;
 AudioPlayer   myAudio;
 AudioInput		in;
-// MidiBus 			myBus;
 FFT           myAudioFFT;
 
 
