@@ -22,12 +22,19 @@ float[]       myAudioData      = new float[myAudioRange];
 
 // ************************************************************************************
 
-HDrawablePool pool;
+HDrawablePool rectPool;
+HDrawablePool orbPool;
+HSwarm 				swarm;
 int           poolCols         = 7;
 int           poolRows         = 7;
+int           poolDepth        = 7;
 
 //                                v BASE = orange            v SNARE = blue
 color[]       palette          = {#FF3300, #FF620C, #FF9519, #0095A8, #FFC725, #F8EF33, #FFFF33, #CCEA4A, #9AD561, #64BE7A, #2EA893};
+
+int           rotateNumX       = 0;
+int           rotateNumY       = 0;
+int           rotateNumZ       = 0;
 
 // ************************************************************************************
 
@@ -44,10 +51,42 @@ void setup() {
 	myAudioFFT.linAverages(myAudioRange);
 	myAudioFFT.window(FFT.GAUSS);
 
-	pool = new HDrawablePool(poolCols * poolRows);
-	pool.autoAddToStage()
-		.add ( new HRect(100).rounding(5) )
-		.layout (new HGridLayout().startX(110).startY(110).spacing(80, 80).cols(poolCols))
+	swarm = new HSwarm()
+		.speed(4)
+		.turnEase(0.025f)
+		.twitch(15)
+		.idleGoal(width/2,height/2)
+	;
+
+	// Orbs
+	orbPool = new HDrawablePool(poolCols * poolRows);
+	orbPool.autoAddToStage()
+		.add ( new HSphere() )
+		.onCreate (
+			new HCallback() {
+				public void run(Object obj) {
+					HSphere d = (HSphere) obj;
+					d
+						.size(10)
+						.loc((int)(random(0, 700)), (int)(random(0, 700)))
+						.strokeWeight(0)
+						.noStroke()
+						.fill(255, int(random(50, 200)))
+						.anchorAt(H.CENTER)
+					;
+					swarm.addTarget(d);
+				}
+			}
+		)
+		.requestAll()
+	;
+
+	// Rectangles
+	rectPool = new HDrawablePool(poolCols * poolRows * poolDepth);
+	rectPool.autoAddToStage()
+		.add (new HRect(100).rounding(5))
+		.layout (new HGridLayout().startX(-300).startY(-300).startZ(-300).spacing(150, 150, 150).rows(poolRows).cols(poolCols))
+		// .layout (new HGridLayout().startX(110).startY(110).spacing(80, 80).cols(poolCols))
 		.onCreate (
 			new HCallback() {
 				public void run(Object obj) {
@@ -58,7 +97,7 @@ void setup() {
 						.noStroke()
 						.fill(palette[ranIndex], 225)
 						.anchorAt(H.CENTER)
-						.rotation(45)
+						// .rotation(45)
 						.z(-600)
 						.extras( new HBundle().num("i", ranIndex) )
 					;
@@ -73,19 +112,48 @@ void draw() {
 	myAudioFFT.forward(in.mix);
 	myAudioDataUpdate();
 
-	H.drawStage();
+	pushMatrix();
+		translate(width/2, height/2, -500);
 
-	for (HDrawable d : pool) {
+		rotateX( map(rotateNumX, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
+		rotateY( map(rotateNumY, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
+		rotateZ( map(rotateNumZ, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
+
+		int fftRotateX = (int)map(myAudioData[0], 0, myAudioMax, -1,  20);
+		int fftRotateY = (int)map(myAudioData[3], 0, myAudioMax, -1,  20);
+		int fftRotateZ = (int)map(myAudioData[5], 0, myAudioMax,  1, -20);
+
+		rotateNumX += fftRotateX;
+		rotateNumY += fftRotateY;
+		rotateNumZ += fftRotateZ;
+
+		H.drawStage();
+	popMatrix();
+
+	for (HDrawable d : rectPool) {
 		HBundle tempExtra = d.extras();
 		int i = (int)tempExtra.num("i");
 
-		int fftZ = (int)map(myAudioData[i], 0, myAudioMax, -600, 100);
+		int fftZ = (int)map(myAudioData[i], 0, myAudioMax, -500, 100);
 		int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, -600, 100);
 		d.z(fftZ);
+
+		// color newColor = (oldColor & 0xffffff) | (newAlpha << 24); 
 
 		// println("Input: " + in.mix.level() + " . . . ." + "soundWeight: " + soundWeight);
 		// println(fftZ);
 	}
+
+	// swarm.addTarget(
+	// 	canvas.add(
+	// 		new HRect(8,2)
+	// 			.rounding(4)
+	// 			.anchorAt( H.CENTER )
+	// 			.noStroke()
+	// 			.fill(colors.getColor())
+	// 	)
+	// );
+
 	if (showVisualizer) myAudioDataWidget();
 }
 
@@ -94,9 +162,11 @@ void myAudioDataUpdate() {
 		float tempIndexAvg = (myAudioFFT.getAvg(i) * myAudioAmp) * myAudioIndexAmp;
 		float tempIndexCon = constrain(tempIndexAvg, 0, myAudioMax);
 		myAudioData[i]     = tempIndexCon;
-		myAudioIndexAmp+=myAudioIndexStep;
+		myAudioIndexAmp		+= myAudioIndexStep;
+		println(myAudioData);
 	}
-	myAudioIndexAmp = myAudioIndex;
+
+	myAudioIndexAmp 		 = myAudioIndex;
 }
 
 void myAudioDataWidget() {
