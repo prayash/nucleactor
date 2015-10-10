@@ -27,7 +27,7 @@ int           poolCols         = 7;
 int           poolRows         = 7;
 
 //                                v BASE = orange            v SNARE = blue
-color[]       palette          = {#FF3300, #FF620C, #FF9519,   #0095A8, #FFC725, #F8EF33, #FFFF33, #CCEA4A, #9AD561, #64BE7A, #2EA893};
+color[]       palette          = {#FF3300, #FF620C, #FF9519, #0095A8, #FFC725, #F8EF33, #FFFF33, #CCEA4A, #9AD561, #64BE7A, #2EA893};
 
 // ************************************************************************************
 
