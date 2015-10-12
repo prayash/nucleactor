@@ -26,6 +26,10 @@ AudioPlayer   myAudio;
 AudioInput		in;
 FFT           myAudioFFT;
 
+int  r = 200;
+float rad = 70;
+int bsize;
+BeatDetect beat;
 
 float 				soundWeight;
 boolean       showVisualizer   = true;
@@ -65,11 +69,14 @@ public void setup() {
 	
 	H.init(this).background(0xff000000).use3D(true).autoClear(true);
 
-	canvasBottom = new HCanvas(700, 700, P3D).autoClear(false).fade(2);
-	H.add(canvasBottom);
+	// canvasBottom = new HCanvas(700, 700, P3D).autoClear(false).fade(2);
+	// H.add(canvasBottom);
 
 	minim   = new Minim(this);
 	in = minim.getLineIn(); // getLineIn(type, bufferSize, sampleRate, bitDepth);
+	
+	bsize = in.bufferSize();
+	beat = new BeatDetect();
 
 	// Fast Fourier Transform
 	myAudioFFT = new FFT(in.bufferSize(), in.sampleRate());
@@ -79,14 +86,14 @@ public void setup() {
 
 	// Swarm
 	swarm = new HSwarm()
-		.speed(4)
-		.turnEase(0.025f)
+		.speed(1)
+		.turnEase(0.015f)
 		.twitch(20)
 		.addGoal((int)(random(0, 700)), (int)(random(0, 700)), (int)(random(0, 700)))
 	;
 
 	// Orbs
-	orbPool = new HDrawablePool(poolCols * poolRows);
+	orbPool = new HDrawablePool(15);
 	orbPool.autoAddToStage()
 		.add ( new HSphere() )
 		.onCreate (
@@ -95,7 +102,7 @@ public void setup() {
 					HSphere d = (HSphere) obj;
 					d
 						.size(10)
-						.loc((int)(random(0, 700)), (int)(random(0, 700)), (int)(random(0, 700)))
+						.loc((int)(random(0, 700)), (int)(random(0, 700)), -200)
 						.strokeWeight(0)
 						.noStroke()
 						.fill(255, PApplet.parseInt(random(50, 200)))
@@ -111,7 +118,7 @@ public void setup() {
 	// Rectangles
 	rectPool = new HDrawablePool(poolCols * poolRows * poolDepth);
 	rectPool.autoAddToStage()
-		.add (new HRect(100).rounding(5))
+		.add (new HRect(50).rounding(5))
 		.layout (new HGridLayout().startX(-300).startY(-300).startZ(-300).spacing(150, 150, 150).rows(poolRows).cols(poolCols))
 		// .layout (new HGridLayout().startX(110).startY(110).spacing(80, 80).cols(poolCols))
 		.onCreate (
@@ -135,20 +142,23 @@ public void setup() {
 	;
 }
 
+// ************************************************************************************
+
 public void draw() {
 	myAudioFFT.forward(in.mix);
+	beat.detect(in.mix);
 	myAudioDataUpdate();
 
 	pushMatrix();
-		translate(width/2, height/2, -500);
+		translate(width/2, height/2, -600);
 
 		rotateX( map(rotateNumX, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
 		rotateY( map(rotateNumY, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
 		rotateZ( map(rotateNumZ, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
 
-		int fftRotateX = (int)map(myAudioData[0], 0, myAudioMax, -1,  20);
-		int fftRotateY = (int)map(myAudioData[3], 0, myAudioMax, -1,  20);
-		int fftRotateZ = (int)map(myAudioData[5], 0, myAudioMax,  1, -20);
+		int fftRotateX = (int)map(myAudioData[0], 0, myAudioMax, -1,  5);
+		int fftRotateY = (int)map(myAudioData[3], 0, myAudioMax, -1,  5);
+		int fftRotateZ = (int)map(myAudioData[5], 0, myAudioMax,  1, -5);
 
 		rotateNumX += fftRotateX;
 		rotateNumY += fftRotateY;
@@ -158,7 +168,6 @@ public void draw() {
 	popMatrix();
 
 	// Audio Processing
-
 	for (HDrawable d : rectPool) {
 		HBundle tempExtra = d.extras();
 		int i = (int)tempExtra.num("i");
@@ -173,8 +182,57 @@ public void draw() {
 		// println(fftZ);
 	}
 
+	// Spinning Orb
+	fill(0);
+  // rect(0, 0, width, height);
+  translate(width/2, height/2);
+  noFill();
+  fill(255, 100);
+  if (beat.isOnset()) {
+  	rad = rad * 0.9f;
+  } else {
+  	rad = 70;
+  }
+	ellipse(0, 0, 2 * rad, 2 * rad);
+  
+  stroke(-1, 50);
+	for (int i = 0; i < bsize - 1; i += 10) {
+    float x = (r) * cos(i * 2 * PI / bsize);
+    float y = (r) * sin(i * 2 * PI / bsize);
+    float x2 = (r + in.left.get(i) * 100) * cos(i * 2 * PI / bsize);
+    float y2 = (r + in.right.get(i) * 100) * sin(i * 2 * PI / bsize);
+    line(x, y, x2, y2);
+  }
+
+  beginShape();
+	  noFill();
+	  stroke(-1, 50);
+	  for (int i = 0; i < bsize; i += 30) {
+	    float x2 = (r + in.left.get(i) * 100) * cos(i * 2 * PI / bsize);
+	    float y2 = (r + in.right.get(i) * 100) * sin(i * 2 * PI / bsize);
+	    vertex(x2, y2);
+
+	    pushStyle();
+		    stroke(-1);
+		    strokeWeight(2);
+		    point(x2, y2);
+	    popStyle();
+	  }
+  endShape();
+
+  if (keyPressed) {
+    if (key == 'w') {
+      showVisualizer = true;
+    } else if (key == 'W') {
+    	showVisualizer = false;
+    }
+  } else {
+    
+  }
 	if (showVisualizer) myAudioDataWidget();
 }
+
+// ************************************************************************************
 
 public void myAudioDataUpdate() {
 	for (int i = 0; i < myAudioRange; ++i) {
@@ -189,13 +247,13 @@ public void myAudioDataUpdate() {
 }
 
 public void myAudioDataWidget() {
-	// noLights();
-	// hint(DISABLE_DEPTH_TEST);
+	noLights();
+	hint(DISABLE_DEPTH_TEST);
 	noStroke(); fill(0,200); rect(0, height-112, width, 102);
 	for (int i = 0; i < myAudioRange; ++i) {
 		fill(0xffCCCCCC); rect(10 + (i*5), (height-myAudioData[i])-11, 4, myAudioData[i]);
 	}
-	// hint(ENABLE_DEPTH_TEST);
+	hint(ENABLE_DEPTH_TEST);
 }
 
 public void stop() {
