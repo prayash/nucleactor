@@ -10,6 +10,7 @@ int  r = 200;
 float rad = 70;
 int bsize;
 BeatDetect beat;
+int colorCounter = 0;
 
 float 				soundWeight;
 boolean       showVisualizer   = true;
@@ -129,76 +130,105 @@ void draw() {
 	beat.detect(in.mix);
 	myAudioDataUpdate();
 
+	int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
+	int snareWeight = (int)map((myAudioData[3] + myAudioData[4]) / 2, 0, 25, 0, 255);
+	
+	// Gradient
+	fill(0);
+  colorMode(HSB, 100, 1, 1);
+  noStroke();
+  beginShape();
+	  fill(12.5 * sin((colorCounter + soundWeight ) / 100.0) + 12.5, 1, 1);
+	  vertex(-width, -height);
+	  fill(12.5 * cos((colorCounter + soundWeight ) /100.0) + 37.5, 1, 1);
+	  vertex(width, -height);
+	  fill(12.5 * cos((colorCounter + soundWeight ) /100.0) + 62.5, 1, 1);
+	  vertex(width, height);
+	  fill(12.5 * sin((colorCounter + soundWeight ) /100.0) + 87.5, 1, 1);
+	  vertex(-width, height);
+  endShape();
+  colorCounter += soundWeight;
+
+	// Orb System
 	pushMatrix();
-		translate(width/2, height/2, -600);
 
-		rotateX( map(rotateNumX, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
-		rotateY( map(rotateNumY, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
-		rotateZ( map(rotateNumZ, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
+		// Nucleus
+		colorMode(RGB); // Reset colorMode
+	  translate(width/2, height/2);
+	  noFill();
+	  fill(-1, 150);
 
-		int fftRotateX = (int)map(myAudioData[0], 0, myAudioMax, -1,  5);
-		int fftRotateY = (int)map(myAudioData[3], 0, myAudioMax, -1,  5);
-		int fftRotateZ = (int)map(myAudioData[5], 0, myAudioMax,  1, -5);
+	  if (beat.isOnset()) {
+	  	rad = rad * 0.85;
+	  	fill(0, 149, 168, 200);
+	  } else {
+	  	rad = 150;
+	  }
+	  for (int i = 0; i < bsize - 1; i += 5) {
+	    ellipse(0, 0, 7 * rad / i, 7 * rad / i);
+	  }
+	  
+	  
+	  // Lines
+	  stroke(-1, snareWeight); // stroke alpha mapped to snare's volume
+	  for (int i = 0; i < bsize - 1; i += 5) {
+	    float x = (r) * cos(i * 2 * PI/bsize);
+	    float y = (r) * sin(i * 2 * PI/bsize);
+	    float x2 = (r + in.left.get(i) * 20) * cos(i*2*PI/bsize);
+	    float y2 = (r + in.left.get(i) * 20) * sin(i*2*PI/bsize);
+	    strokeWeight(soundWeight * 1.5);
+	    line(x, y, x2, y2);
+	  }
 
-		rotateNumX += fftRotateX;
-		rotateNumY += fftRotateY;
-		rotateNumZ += fftRotateZ;
-
-		H.drawStage();
+	  // Points
+	  beginShape();
+		  noFill();
+		  stroke(-1, 180);
+		  for (int i = 0; i < bsize; i += 30) {
+		    float x2 = (r + in.left.get(i) * 30) * cos(i*2*PI/bsize);
+		    float y2 = (r + in.left.get(i) * 30) * sin(i*2*PI/bsize);
+		    vertex(x2, y2);
+		    pushStyle();
+			    stroke(-1);
+			    strokeWeight(2);
+			    point(x2, y2);
+		    popStyle();
+		  }
+	  endShape();
 	popMatrix();
 
-	// Audio Processing
-	for (HDrawable d : rectPool) {
-		HBundle tempExtra = d.extras();
-		int i = (int)tempExtra.num("i");
+	// pushMatrix();
+	// 	translate(width/2, height/2, -600);
 
-		int fftZ = (int)map(myAudioData[i], 0, myAudioMax, -500, 100);
-		int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, -600, 100);
-		d.z(fftZ);
+	// 	rotateX( map(rotateNumX, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
+	// 	rotateY( map(rotateNumY, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
+	// 	rotateZ( map(rotateNumZ, 0, myAudioMax, -(TWO_PI / 20), TWO_PI / 20) );
 
-		// color newColor = (oldColor & 0xffffff) | (newAlpha << 24); 
+	// 	int fftRotateX = (int)map(myAudioData[0], 0, myAudioMax, -1,  5);
+	// 	int fftRotateY = (int)map(myAudioData[3], 0, myAudioMax, -1,  5);
+	// 	int fftRotateZ = (int)map(myAudioData[5], 0, myAudioMax,  1, -5);
 
-		// println("Input: " + in.mix.level() + " . . . ." + "soundWeight: " + soundWeight);
-		// println(fftZ);
-	}
+	// 	rotateNumX += fftRotateX;
+	// 	rotateNumY += fftRotateY;
+	// 	rotateNumZ += fftRotateZ;
 
-	// Spinning Orb
-	fill(0);
-  // rect(0, 0, width, height);
-  translate(width/2, height/2);
-  noFill();
-  fill(255, 100);
-  if (beat.isOnset()) {
-  	rad = rad * 0.9;
-  } else {
-  	rad = 70;
-  }
-	ellipse(0, 0, 2 * rad, 2 * rad);
-  
-  stroke(-1, 50);
-	for (int i = 0; i < bsize - 1; i += 10) {
-    float x = (r) * cos(i * 2 * PI / bsize);
-    float y = (r) * sin(i * 2 * PI / bsize);
-    float x2 = (r + in.left.get(i) * 100) * cos(i * 2 * PI / bsize);
-    float y2 = (r + in.right.get(i) * 100) * sin(i * 2 * PI / bsize);
-    line(x, y, x2, y2);
-  }
+	// 	// H.drawStage();
+	// popMatrix();
 
-  beginShape();
-	  noFill();
-	  stroke(-1, 50);
-	  for (int i = 0; i < bsize; i += 30) {
-	    float x2 = (r + in.left.get(i) * 100) * cos(i * 2 * PI / bsize);
-	    float y2 = (r + in.right.get(i) * 100) * sin(i * 2 * PI / bsize);
-	    vertex(x2, y2);
+	// // Audio Processing
+	// for (HDrawable d : rectPool) {
+	// 	HBundle tempExtra = d.extras();
+	// 	int i = (int)tempExtra.num("i");
 
-	    pushStyle();
-		    stroke(-1);
-		    strokeWeight(2);
-		    point(x2, y2);
-	    popStyle();
-	  }
-  endShape();
+	// 	int fftZ = (int)map(myAudioData[i], 0, myAudioMax, -500, 100);
+	// 	// int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, -600, 100);
+	// 	d.z(fftZ);
+
+	// 	// color newColor = (oldColor & 0xffffff) | (newAlpha << 24); 
+
+	// 	// println("Input: " + in.mix.level() + " . . . ." + "soundWeight: " + soundWeight);
+	// 	// println(fftZ);
+	// }
 
   if (keyPressed) {
     if (key == 'w') {
@@ -206,9 +236,8 @@ void draw() {
     } else if (key == 'W') {
     	showVisualizer = false;
     }
-  } else {
-    
   }
+
 	if (showVisualizer) myAudioDataWidget();
 }
 
