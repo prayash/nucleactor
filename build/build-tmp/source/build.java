@@ -66,6 +66,10 @@ int           rotateNumZ       = 0;
 
 // ************************************************************************************
 
+int num = 200, frames = 480, edge = 40;
+Orb[] orbs = new Orb[num];
+float theta;
+
 public void setup() {
 	
 	H.init(this).background(0xff000000).use3D(true).autoClear(true);
@@ -85,62 +89,13 @@ public void setup() {
 	myAudioFFT.linAverages(myAudioRange);
 	myAudioFFT.window(FFT.GAUSS);
 
-	// Swarm
-	swarm = new HSwarm()
-		.speed(1)
-		.turnEase(0.015f)
-		.twitch(20)
-		.addGoal((int)(random(0, 700)), (int)(random(0, 700)), (int)(random(0, 700)))
-	;
+	for (int i=0; i<num; i++) {
+    float d = 150;
+    float x = random(width);
+    float y = (height-2)/PApplet.parseFloat(num)*i;
+    orbs[i] = new Orb(x,y, random(5, 10));
+  }
 
-	// Orbs
-	orbPool = new HDrawablePool(15);
-	orbPool.autoAddToStage()
-		.add ( new HSphere() )
-		.onCreate (
-			new HCallback() {
-				public void run(Object obj) {
-					HSphere d = (HSphere) obj;
-					d
-						.size(10)
-						.loc((int)(random(0, 700)), (int)(random(0, 700)), -200)
-						.strokeWeight(0)
-						.noStroke()
-						.fill(255, PApplet.parseInt(random(50, 200)))
-						.anchorAt(H.CENTER)
-					;
-					swarm.addTarget(d);
-				}
-			}
-		)
-		.requestAll()
-	;
-
-	// Rectangles
-	rectPool = new HDrawablePool(poolCols * poolRows * poolDepth);
-	rectPool.autoAddToStage()
-		.add (new HRect(50).rounding(5))
-		.layout (new HGridLayout().startX(-300).startY(-300).startZ(-300).spacing(150, 150, 150).rows(poolRows).cols(poolCols))
-		// .layout (new HGridLayout().startX(110).startY(110).spacing(80, 80).cols(poolCols))
-		.onCreate (
-			new HCallback() {
-				public void run(Object obj) {
-					int ranIndex = (int)random(myAudioRange);
-
-					HDrawable d = (HDrawable) obj;
-					d
-						.noStroke()
-						.fill(palette[ranIndex], 225)
-						.anchorAt(H.CENTER)
-						// .rotation(45)
-						.z(-600)
-						.extras( new HBundle().num("i", ranIndex) )
-					;
-				}
-			}
-		)
-		.requestAll()
-	;
 }
 
 // ************************************************************************************
@@ -152,6 +107,7 @@ public void draw() {
 
 	int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
 	int snareWeight = (int)map((myAudioData[3] + myAudioData[4]) / 2, 0, 25, 0, 255);
+
 	
 	// Gradient
 	fill(0);
@@ -172,6 +128,8 @@ public void draw() {
 	// Orb System
 	pushMatrix();
 
+	
+
 		// Nucleus
 		colorMode(RGB); // Reset colorMode
 	  translate(width/2, height/2);
@@ -187,8 +145,7 @@ public void draw() {
 	  for (int i = 0; i < bsize - 1; i += 5) {
 	    ellipse(0, 0, 7 * rad / i, 7 * rad / i);
 	  }
-	  
-	  
+
 	  // Lines
 	  stroke(-1, snareWeight); // stroke alpha mapped to snare's volume
 	  for (int i = 0; i < bsize - 1; i += 5) {
@@ -196,7 +153,7 @@ public void draw() {
 	    float y = (r) * sin(i * 2 * PI/bsize);
 	    float x2 = (r + in.left.get(i) * 20) * cos(i*2*PI/bsize);
 	    float y2 = (r + in.left.get(i) * 20) * sin(i*2*PI/bsize);
-	    strokeWeight(soundWeight * 1.5f);
+	    strokeWeight(snareWeight * 0.0125f);
 	    line(x, y, x2, y2);
 	  }
 
@@ -215,7 +172,15 @@ public void draw() {
 		    popStyle();
 		  }
 	  endShape();
+
 	popMatrix();
+
+	stroke(-1, snareWeight * 0.0125f);
+  strokeWeight(soundWeight);
+  for (int i = 0; i < orbs.length; i++) {
+		orbs[i].run();
+	}
+	theta += TWO_PI/frames * 0.5f;
 
 	// pushMatrix();
 	// 	translate(width/2, height/2, -600);
@@ -262,6 +227,47 @@ public void draw() {
 }
 
 // ************************************************************************************
+
+class Orb {
+ 
+  float x, y, sz;
+  float px, py, offSet, radius;
+  int dir, currentOrb;
+  int col;
+ 
+  Orb(float _x, float _y, float _sz) {
+    x = _x;
+    y = _y;
+    sz = _sz;
+    offSet = random(TWO_PI);
+    radius = random(5, 10);
+    dir=random(1)>.5f?1:-1;
+  }
+ 
+  public void run() {
+    update();
+    showLines();
+  }
+ 
+  public void update() {
+    float vari = map(sin(theta+offSet),-1,1,-2,-2);
+    px = map(sin(theta+offSet),-1,1,0,width);
+    py = y + sin(theta*dir)*radius*vari;
+ 
+  }
+ 
+  public void showLines() {
+    for (int i=0; i<orbs.length; i++) {
+      currentOrb = i;
+      float distance = dist(px, py, orbs[i].px, orbs[i].py);
+      if (distance>0 && distance < 60) {
+        // stroke(0, 255);
+        line(px, py, orbs[i].px, orbs[i].py);
+      }
+    }
+  }
+ 
+}
 
 public void myAudioDataUpdate() {
 	for (int i = 0; i < myAudioRange; ++i) {
