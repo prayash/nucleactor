@@ -87,23 +87,36 @@ void draw() {
 
 	int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
 	int snareWeight = (int)map((myAudioData[3] + myAudioData[4]) / 2, 0, 25, 0, 255);
+	int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
+	if (gradientVariance > 15) {
+		gradientVariance = 155;
+	}
 	
 	// Gradient
 	fill(0);
   colorMode(HSB, 100, 1, 1);
   noStroke();
   beginShape();
-	  fill(12.5 * sin((colorCounter + soundWeight ) / 100.0) + 12.5, 1, 1);
+
+  	// Yellows and Reds
+	  fill(12.5 * sin((colorCounter + gradientVariance * 0.025 ) / 100.0) + 12.5, 1, 1);
 	  vertex(-width, -height);
-	  fill(12.5 * cos((colorCounter + soundWeight ) /100.0) + 37.5, 1, 1);
+	  
+	  // Yellows and Whites
+	  fill(12.5 * cos((colorCounter + gradientVariance * 0.025 ) / 200.0) + 37.5, 1, 1);
 	  vertex(width, -height);
-	  fill(12.5 * cos((colorCounter + soundWeight ) /100.0) + 62.5, 1, 1);
+
+	  // Blues and Greens
+	  fill(12.5 * cos((colorCounter + gradientVariance * 0.025 ) / 100.0) + 62.5, 1, 1);
 	  vertex(width, height);
-	  fill(12.5 * sin((colorCounter + soundWeight ) /100.0) + 87.5, 1, 1);
+	  
+	  // Reds + Purples
+	  fill(12.5 * sin((colorCounter + gradientVariance * 0.025 ) / 200.0) + 87.5, 1, 1);
 	  vertex(-width, height);
+
   endShape();
-  colorCounter += soundWeight;
+  colorCounter += gradientVariance;
 
 	// Orb System
 	pushMatrix();
@@ -125,7 +138,7 @@ void draw() {
 	  }
 
 	  // Lines
-	  stroke(-1, snareWeight); // stroke alpha mapped to snare's volume
+	  stroke(-1, snareWeight / 2); // stroke alpha mapped to snare's volume
 	  for (int i = 0; i < bsize - 1; i += 5) {
 	    float x = (r) * cos(i * 2 * PI/bsize);
 	    float y = (r) * sin(i * 2 * PI/bsize);
@@ -145,7 +158,7 @@ void draw() {
 		    vertex(x2, y2);
 		    pushStyle();
 			    stroke(-1);
-			    strokeWeight(2);
+			    strokeWeight(5);
 			    point(x2, y2);
 		    popStyle();
 		  }
@@ -154,9 +167,13 @@ void draw() {
 	popMatrix();
 
 	// Fragments
-	stroke(-1, snareWeight * 0.0125);
+	stroke(-1, snareWeight * 0.0225);
   strokeWeight(soundWeight);
   for (int i = 0; i < orbs.length; i++) {
+  	orbs[i].x = myAudioData[5] * 5;
+		// orbs[i].y = myAudioData[6];
+		orbs[i].px = myAudioData[5] * 50;
+		orbs[i].py = myAudioData[6] * 5;
 		orbs[i].run();
 	}
 	theta += TWO_PI/frames * 0.5;
@@ -178,7 +195,7 @@ class Orb {
  
   float x, y, sz;
   float px, py, offSet, radius;
-  int dir, currentOrb;
+  int dir;
   color col;
  
   Orb(float _x, float _y, float _sz) {
@@ -187,7 +204,7 @@ class Orb {
     sz = _sz;
     offSet = random(TWO_PI);
     radius = random(5, 10);
-    dir=random(1)>.5?1:-1;
+    dir = random(1) > .5 ? 1 : -1;
   }
  
   void run() {
@@ -203,10 +220,9 @@ class Orb {
   }
  
   void showLines() {
-    for (int i=0; i<orbs.length; i++) {
-      currentOrb = i;
+    for (int i = 0; i < orbs.length; i++) {
       float distance = dist(px, py, orbs[i].px, orbs[i].py);
-      if (distance>0 && distance < 60) {
+      if (distance > 0 && distance < 60) {
         // stroke(0, 255);
         line(px, py, orbs[i].px, orbs[i].py);
       }
