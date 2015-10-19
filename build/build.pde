@@ -142,8 +142,8 @@ void draw() {
 	  for (int i = 0; i < bsize - 1; i += 5) {
 	    float x = (r) * cos(i * 2 * PI/bsize);
 	    float y = (r) * sin(i * 2 * PI/bsize);
-	    float x2 = (r + in.left.get(i) * 20) * cos(i*2*PI/bsize);
-	    float y2 = (r + in.left.get(i) * 20) * sin(i*2*PI/bsize);
+	    float x2 = (r + in.left.get(i) * 20) * cos(i * 2 * PI/bsize);
+	    float y2 = (r + in.left.get(i) * 20) * sin(i * 2 * PI/bsize);
 	    strokeWeight(snareWeight * 0.0125);
 	    line(x, y, x2, y2);
 	  }
@@ -153,8 +153,8 @@ void draw() {
 		  noFill();
 		  stroke(-1, 180);
 		  for (int i = 0; i < bsize; i += 30) {
-		    float x2 = (r + in.left.get(i) * 30) * cos(i*2*PI/bsize);
-		    float y2 = (r + in.left.get(i) * 30) * sin(i*2*PI/bsize);
+		    float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
+		    float y2 = (r + in.left.get(i) * 30) * sin(i * 2 * PI/bsize);
 		    vertex(x2, y2);
 		    pushStyle();
 			    stroke(-1);
