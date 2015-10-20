@@ -69,11 +69,10 @@ void setup() {
 	myAudioFFT.linAverages(myAudioRange);
 	myAudioFFT.window(FFT.GAUSS);
 
-	for (int i=0; i<num; i++) {
-    float d = 150;
+	for (int i = 0; i < num; i++) {
     float x = random(width);
-    float y = (height-2)/float(num)*i;
-    orbs[i] = new Orb(x,y, random(5, 10));
+    float y = (height - 2) / float(num) * i;
+    orbs[i] = new Orb(x, y);
   }
 
 }
@@ -90,7 +89,7 @@ void draw() {
 	int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
 	if (gradientVariance > 15) {
-		gradientVariance = 155;
+		gradientVariance = 50;
 	}
 	
 	// Gradient
@@ -104,7 +103,7 @@ void draw() {
 	  vertex(-width, -height);
 	  
 	  // Yellows and Whites
-	  fill(12.5 * cos((colorCounter + gradientVariance * 0.025 ) / 200.0) + 37.5, 1, 1);
+	  fill(12.5 * cos((colorCounter - gradientVariance * 0.025 ) / 200.0) + 37.5, 1, 1);
 	  vertex(width, -height);
 
 	  // Blues and Greens
@@ -193,15 +192,14 @@ void draw() {
 
 class Orb {
  
-  float x, y, sz;
+  float x, y;
   float px, py, offSet, radius;
   int dir;
   color col;
  
-  Orb(float _x, float _y, float _sz) {
+  Orb(float _x, float _y) {
     x = _x;
     y = _y;
-    sz = _sz;
     offSet = random(TWO_PI);
     radius = random(5, 10);
     dir = random(1) > .5 ? 1 : -1;

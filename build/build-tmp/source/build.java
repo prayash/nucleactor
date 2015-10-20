@@ -89,11 +89,10 @@ public void setup() {
 	myAudioFFT.linAverages(myAudioRange);
 	myAudioFFT.window(FFT.GAUSS);
 
-	for (int i=0; i<num; i++) {
-    float d = 150;
+	for (int i = 0; i < num; i++) {
     float x = random(width);
-    float y = (height-2)/PApplet.parseFloat(num)*i;
-    orbs[i] = new Orb(x,y, random(5, 10));
+    float y = (height - 2) / PApplet.parseFloat(num) * i;
+    orbs[i] = new Orb(x, y);
   }
 
 }
@@ -110,7 +109,7 @@ public void draw() {
 	int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
 	if (gradientVariance > 15) {
-		gradientVariance = 155;
+		gradientVariance = 50;
 	}
 	
 	// Gradient
@@ -124,7 +123,7 @@ public void draw() {
 	  vertex(-width, -height);
 	  
 	  // Yellows and Whites
-	  fill(12.5f * cos((colorCounter + gradientVariance * 0.025f ) / 200.0f) + 37.5f, 1, 1);
+	  fill(12.5f * cos((colorCounter - gradientVariance * 0.025f ) / 200.0f) + 37.5f, 1, 1);
 	  vertex(width, -height);
 
 	  // Blues and Greens
@@ -162,8 +161,8 @@ public void draw() {
 	  for (int i = 0; i < bsize - 1; i += 5) {
 	    float x = (r) * cos(i * 2 * PI/bsize);
 	    float y = (r) * sin(i * 2 * PI/bsize);
-	    float x2 = (r + in.left.get(i) * 20) * cos(i*2*PI/bsize);
-	    float y2 = (r + in.left.get(i) * 20) * sin(i*2*PI/bsize);
+	    float x2 = (r + in.left.get(i) * 20) * cos(i * 2 * PI/bsize);
+	    float y2 = (r + in.left.get(i) * 20) * sin(i * 2 * PI/bsize);
 	    strokeWeight(snareWeight * 0.0125f);
 	    line(x, y, x2, y2);
 	  }
@@ -173,8 +172,8 @@ public void draw() {
 		  noFill();
 		  stroke(-1, 180);
 		  for (int i = 0; i < bsize; i += 30) {
-		    float x2 = (r + in.left.get(i) * 30) * cos(i*2*PI/bsize);
-		    float y2 = (r + in.left.get(i) * 30) * sin(i*2*PI/bsize);
+		    float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
+		    float y2 = (r + in.left.get(i) * 30) * sin(i * 2 * PI/bsize);
 		    vertex(x2, y2);
 		    pushStyle();
 			    stroke(-1);
@@ -213,15 +212,14 @@ public void draw() {
 
 class Orb {
  
-  float x, y, sz;
+  float x, y;
   float px, py, offSet, radius;
   int dir;
   int col;
  
-  Orb(float _x, float _y, float _sz) {
+  Orb(float _x, float _y) {
     x = _x;
     y = _y;
-    sz = _sz;
     offSet = random(TWO_PI);
     radius = random(5, 10);
     dir = random(1) > .5f ? 1 : -1;
