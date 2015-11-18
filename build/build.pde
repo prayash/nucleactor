@@ -22,27 +22,7 @@ float         myAudioAmp       = 40.0;
 float         myAudioIndex     = 0.2;
 float         myAudioIndexAmp  = myAudioIndex;
 float         myAudioIndexStep = 0.35;
-
 float[]       myAudioData      = new float[myAudioRange];
-
-// ************************************************************************************
-
-HDrawablePool rectPool;
-HDrawablePool orbPool;
-HSwarm 				swarm;
-HCanvas				canvasBottom;
-HCanvas				canvasTop;
-
-int           poolCols         = 7;
-int           poolRows         = 7;
-int           poolDepth        = 7;
-
-//                               v BASE = orange            v SNARE = blue
-color[]       palette          = {#FF3300, #FF620C, #FF9519, #0095A8, #FFC725, #F8EF33, #FFFF33, #CCEA4A, #9AD561, #64BE7A, #2EA893};
-
-int           rotateNumX       = 0;
-int           rotateNumY       = 0;
-int           rotateNumZ       = 0;
 
 // ************************************************************************************
 
@@ -51,11 +31,7 @@ Orb[] orbs = new Orb[num];
 float theta;
 
 void setup() {
-	size(700, 700, P3D);
-	H.init(this).background(#000000).use3D(true).autoClear(true);
-
-	// canvasBottom = new HCanvas(700, 700, P3D).autoClear(false).fade(2);
-	// H.add(canvasBottom);
+	size(700, 700);
 
 	minim   = new Minim(this);
 	in = minim.getLineIn(); // getLineIn(type, bufferSize, sampleRate, bitDepth);
@@ -67,8 +43,9 @@ void setup() {
 	myAudioFFT = new FFT(in.bufferSize(), in.sampleRate());
 	println("bufferSize: " + in.bufferSize() + " . . . " + "sampleRate: " + in.sampleRate());
 	myAudioFFT.linAverages(myAudioRange);
-	myAudioFFT.window(FFT.GAUSS);
+	// myAudioFFT.window(FFT.GAUSS);
 
+  // Fragments
 	for (int i = 0; i < num; i++) {
     float x = random(width);
     float y = (height - 2) / float(num) * i;
@@ -85,7 +62,7 @@ void draw() {
 	myAudioDataUpdate();
 
 	int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
-	int snareWeight = (int)map((myAudioData[3] + myAudioData[4]) / 2, 0, 25, 0, 255);
+	int snareWeight = (int)map((myAudioData[3] + myAudioData[4]+ myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]) / 7, 0, 255, 0, 255);
 	int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
 	if (gradientVariance > 15) {
@@ -107,11 +84,11 @@ void draw() {
 	  vertex(width, -height);
 
 	  // Blues and Greens
-	  fill(12.5 * cos((colorCounter + gradientVariance * 0.025 ) / 100.0) + 62.5, 1, 1);
+	  fill(12.5 * cos((colorCounter * 0.025 ) / 100.0) + 62.5, 1, 1);
 	  vertex(width, height);
 	  
 	  // Reds + Purples
-	  fill(12.5 * sin((colorCounter + gradientVariance * 0.025 ) / 200.0) + 87.5, 1, 1);
+	  fill(12.5 * sin((colorCounter + gradientVariance * 0.25 ) / 200.0) + 87.5, 1, 1);
 	  vertex(-width, height);
 
   endShape();
