@@ -26,55 +26,32 @@ AudioPlayer   myAudio;
 AudioInput		in;
 FFT           myAudioFFT;
 
-int  r = 200;
-float rad = 70;
-int bsize;
-BeatDetect beat;
-int colorCounter = 0;
+int           r                = 200;
+float         rad              = 70;
+int           bsize;
+BeatDetect    beat;
+int           colorCounter     = 0;
 
-float 				soundWeight;
+float 				volume;
 boolean       showVisualizer   = true;
 
 int           myAudioRange     = 11;
 int           myAudioMax       = 100;
 
 float         myAudioAmp       = 40.0f;
-float         myAudioIndex     = 0.0f;
+float         myAudioIndex     = 0.2f;
 float         myAudioIndexAmp  = myAudioIndex;
 float         myAudioIndexStep = 0.35f;
-
 float[]       myAudioData      = new float[myAudioRange];
 
 // ************************************************************************************
 
-HDrawablePool rectPool;
-HDrawablePool orbPool;
-HSwarm 				swarm;
-HCanvas				canvasBottom;
-HCanvas				canvasTop;
-
-int           poolCols         = 7;
-int           poolRows         = 7;
-int           poolDepth        = 7;
-
-//                               v BASE = orange            v SNARE = blue
-int[]       palette          = {0xffFF3300, 0xffFF620C, 0xffFF9519, 0xff0095A8, 0xffFFC725, 0xffF8EF33, 0xffFFFF33, 0xffCCEA4A, 0xff9AD561, 0xff64BE7A, 0xff2EA893};
-
-int           rotateNumX       = 0;
-int           rotateNumY       = 0;
-int           rotateNumZ       = 0;
-
-// ************************************************************************************
-
 int num = 200, frames = 480, edge = 40;
-Orb[] orbs = new Orb[num];
+Fragment[] fragments = new Fragment[num];
 float theta;
 
 public void setup() {
 	
-
-	// canvasBottom = new HCanvas(700, 700, P3D).autoClear(false).fade(2);
-	// H.add(canvasBottom);
 
 	minim   = new Minim(this);
 	in = minim.getLineIn(); // getLineIn(type, bufferSize, sampleRate, bitDepth);
@@ -88,10 +65,11 @@ public void setup() {
 	myAudioFFT.linAverages(myAudioRange);
 	// myAudioFFT.window(FFT.GAUSS);
 
+  // Fragments
 	for (int i = 0; i < num; i++) {
     float x = random(width);
     float y = (height - 2) / PApplet.parseFloat(num) * i;
-    orbs[i] = new Orb(x, y);
+    fragments[i] = new Fragment(x, y);
   }
 
 }
@@ -103,13 +81,15 @@ public void draw() {
 	beat.detect(in.mix);
 	myAudioDataUpdate();
 
-	int soundWeight	 = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
-	int snareWeight = (int)map((myAudioData[3] + myAudioData[4]+ myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]) / 7, 0, 255, 0, 255);
+  // Audio Data Mappings
+	int volume	 = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
+	int trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
 	int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
-	if (gradientVariance > 15) {
-		gradientVariance = 50;
-	}
+
+  if (gradientVariance > 15) {
+    gradientVariance += 50;
+  }
 	
 	// Gradient
 	fill(0);
@@ -136,10 +116,11 @@ public void draw() {
   endShape();
   colorCounter += gradientVariance;
 
-	// Orb System
+	// ---------------
+  // Nucleactor
 	pushMatrix();
-
-		// Nucleus
+    // ---------------
+    // Nucleus
 		colorMode(RGB); // Reset colorMode
 	  translate(width/2, height/2);
 	  noFill();
@@ -151,26 +132,29 @@ public void draw() {
 	  } else {
 	  	rad = 150;
 	  }
+
 	  for (int i = 0; i < bsize - 1; i += 5) {
 	    ellipse(0, 0, 7 * rad / i, 7 * rad / i);
 	  }
 
+    // ---------------
 	  // Lines
-	  stroke(-1, snareWeight / 2); // stroke alpha mapped to snare's volume
+	  stroke(-1, trebleWeight / 2); // stroke alpha mapped to treble volume
 	  for (int i = 0; i < bsize - 1; i += 5) {
 	    float x = (r) * cos(i * 2 * PI/bsize);
 	    float y = (r) * sin(i * 2 * PI/bsize);
 	    float x2 = (r + in.left.get(i) * 20) * cos(i * 2 * PI/bsize);
 	    float y2 = (r + in.left.get(i) * 20) * sin(i * 2 * PI/bsize);
-	    strokeWeight(snareWeight * 0.0125f);
+	    strokeWeight(trebleWeight * 0.0125f);
 	    line(x, y, x2, y2);
 	  }
 
+    // ---------------
 	  // Points
 	  beginShape();
 		  noFill();
 		  stroke(-1, 180);
-		  for (int i = 0; i < bsize; i += 30) {
+		  for (int i = 0; i < bsize; i += 32) {
 		    float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
 		    float y2 = (r + in.left.get(i) * 30) * sin(i * 2 * PI/bsize);
 		    vertex(x2, y2);
@@ -181,21 +165,24 @@ public void draw() {
 		    popStyle();
 		  }
 	  endShape();
-
 	popMatrix();
+  // --- End Nucleus -- //
 
+  // ---------------
 	// Fragments
-	stroke(-1, snareWeight * 0.0225f);
-  strokeWeight(soundWeight);
-  for (int i = 0; i < orbs.length; i++) {
-  	orbs[i].x = myAudioData[5] * 5;
-		// orbs[i].y = myAudioData[6];
-		orbs[i].px = myAudioData[5] * 50;
-		orbs[i].py = myAudioData[6] * 5;
-		orbs[i].run();
+	stroke(-1, trebleWeight);
+  strokeWeight(volume);
+  for (int i = 0; i < fragments.length; i++) {
+  	fragments[i].x = myAudioData[5] * 5;
+		// fragments[i].y = myAudioData[6];
+		fragments[i].px = myAudioData[5] * 50;
+		fragments[i].py = myAudioData[6] * 5;
+		fragments[i].run();
 	}
 	theta += TWO_PI/frames * 0.5f;
 
+  // ---------------
+  // Spectrum
   if (keyPressed) {
     if (key == 'w') {
       showVisualizer = true;
@@ -208,15 +195,16 @@ public void draw() {
 }
 
 // ************************************************************************************
+// Classes
 
-class Orb {
- 
+// Fragment
+class Fragment {
   float x, y;
   float px, py, offSet, radius;
   int dir;
   int col;
  
-  Orb(float _x, float _y) {
+  Fragment(float _x, float _y) {
     x = _x;
     y = _y;
     offSet = random(TWO_PI);
@@ -230,23 +218,26 @@ class Orb {
   }
  
   public void update() {
-    float vari = map(sin(theta+offSet),-1,1,-2,-2);
-    px = map(sin(theta+offSet),-1,1,0,width);
-    py = y + sin(theta*dir)*radius*vari;
+    float vari = map(sin(theta + offSet), -1, 1, -2, -2);
+    px = map(sin(theta + offSet) , -1, 1, 0, width);
+    py = y + sin(theta * dir) * radius * vari;
  
   }
  
   public void showLines() {
-    for (int i = 0; i < orbs.length; i++) {
-      float distance = dist(px, py, orbs[i].px, orbs[i].py);
+    for (int i = 0; i < fragments.length; i++) {
+      float distance = dist(px, py, fragments[i].px, fragments[i].py);
       if (distance > 0 && distance < 60) {
         // stroke(0, 255);
-        line(px, py, orbs[i].px, orbs[i].py);
+        line(px, py, fragments[i].px, fragments[i].py);
       }
     }
   }
  
 }
+
+// ************************************************************************************
+// Audio Data
 
 public void myAudioDataUpdate() {
 	for (int i = 0; i < myAudioRange; ++i) {
@@ -263,9 +254,9 @@ public void myAudioDataUpdate() {
 public void myAudioDataWidget() {
 	noLights();
 	hint(DISABLE_DEPTH_TEST);
-	noStroke(); fill(0,200); rect(0, height-112, width, 102);
+	noStroke(); fill(0, 200); rect(0, height - 112, width, 102);
 	for (int i = 0; i < myAudioRange; ++i) {
-		fill(0xffCCCCCC); rect(10 + (i*5), (height-myAudioData[i])-11, 4, myAudioData[i]);
+		fill(0xffCCCCCC); rect(10 + (i * 5), (height - myAudioData[i]) - 11, 4, myAudioData[i]);
 	}
 	hint(ENABLE_DEPTH_TEST);
 }
