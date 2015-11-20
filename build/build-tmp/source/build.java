@@ -154,7 +154,7 @@ public void draw() {
 	  beginShape();
 		  noFill();
 		  stroke(-1, 180);
-		  for (int i = 0; i < bsize; i += 32) {
+		  for (int i = 0; i < bsize; i += 26) {
 		    float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
 		    float y2 = (r + in.left.get(i) * 30) * sin(i * 2 * PI/bsize);
 		    vertex(x2, y2);
@@ -256,7 +256,7 @@ public void myAudioDataWidget() {
 	hint(DISABLE_DEPTH_TEST);
 	noStroke(); fill(0, 200); rect(0, height - 112, width, 102);
 	for (int i = 0; i < myAudioRange; ++i) {
-		fill(0xffCCCCCC); rect(10 + (i * 5), (height - myAudioData[i]) - 11, 4, myAudioData[i]);
+		fill(0xffCCCCCC); rect(10 + (i * 15), (height - myAudioData[i]) - 11, 10, myAudioData[i]);
 	}
 	hint(ENABLE_DEPTH_TEST);
 }
