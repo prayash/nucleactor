@@ -1,0 +1,9 @@
+.tmp
+.sass-cache
+<%= appPath %>/bower_components
+coverage
+platforms
+*.swp
+*.swo
+*.log
+*.DS_Store
