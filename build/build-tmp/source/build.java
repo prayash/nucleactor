@@ -44,11 +44,17 @@ float         myAudioIndexAmp  = myAudioIndex;
 float         myAudioIndexStep = 0.35f;
 float[]       myAudioData      = new float[myAudioRange];
 
-// ************************************************************************************
+ArrayList<Arc> arcs = new ArrayList<Arc>();
+int mode;
+boolean deux;
+boolean rnd;
+int fadeTimer;
 
 int num = 200, frames = 480, edge = 40;
 Fragment[] fragments = new Fragment[num];
 float theta;
+
+// ************************************************************************************
 
 public void setup() {
 	
@@ -61,7 +67,7 @@ public void setup() {
 
 	// Fast Fourier Transform
 	myAudioFFT = new FFT(in.bufferSize(), in.sampleRate());
-	println("bufferSize: " + in.bufferSize() + " . . . " + "sampleRate: " + in.sampleRate());
+	// println("bufferSize: " + in.bufferSize() + " . . . " + "sampleRate: " + in.sampleRate());
 	myAudioFFT.linAverages(myAudioRange);
 	// myAudioFFT.window(FFT.GAUSS);
 
@@ -71,6 +77,11 @@ public void setup() {
     float y = (height - 2) / PApplet.parseFloat(num) * i;
     fragments[i] = new Fragment(x, y);
   }
+  generateArcs();
+}
+
+int al=0, al2=255;
+public void fadeOut() {
 
 }
 
@@ -87,16 +98,12 @@ public void draw() {
 	int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
 
-  if (gradientVariance > 15) {
-    gradientVariance += 50;
-  }
-	
-	// Gradient
-	fill(0);
+  // ---------------
+  // Background
+  fill(0);
   colorMode(HSB, 100, 1, 1);
   noStroke();
   beginShape();
-
   	// Yellows and Reds
 	  fill(12.5f * sin((colorCounter + gradientVariance * 0.025f ) / 100.0f) + 12.5f, 1, 1);
 	  vertex(-width, -height);
@@ -114,7 +121,39 @@ public void draw() {
 	  vertex(-width, height);
 
   endShape();
+  if (gradientVariance > 15) gradientVariance += 50;
   colorCounter += gradientVariance;
+
+  for (int i = 0; i < arcs.size(); i++) {
+    Arc a = (Arc)arcs.get(i);
+    pushMatrix();
+      translate(width / 2, height / 2);
+      switch(mode) {
+        case 0:
+          a.draw();
+          break;
+        case 1:
+          a.animate1();
+          break;
+        case 2:
+          a.animate2();
+          break;
+        case 3:
+          a.animate3();
+          break;
+        case 4:
+          a.animate4();
+          break;
+        case 5:
+          a.animate5();
+          break;
+      }
+    popMatrix();
+    fadeTimer++;
+    if(fadeTimer>300){
+        fadeOut();
+    }
+  }
 
 	// ---------------
   // Nucleactor
@@ -124,6 +163,7 @@ public void draw() {
 		colorMode(RGB); // Reset colorMode
 	  translate(width/2, height/2);
 	  noFill();
+    noStroke();
 	  fill(-1, 150);
 
 	  if (beat.isOnset()) {
@@ -174,7 +214,6 @@ public void draw() {
   strokeWeight(volume);
   for (int i = 0; i < fragments.length; i++) {
   	fragments[i].x = myAudioData[5] * 5;
-		// fragments[i].y = myAudioData[6];
 		fragments[i].px = myAudioData[5] * 50;
 		fragments[i].py = myAudioData[6] * 5;
 		fragments[i].run();
@@ -182,7 +221,7 @@ public void draw() {
 	theta += TWO_PI/frames * 0.5f;
 
   // ---------------
-  // Spectrum
+  // Visualizer
   if (keyPressed) {
     if (key == 'w') {
       showVisualizer = true;
@@ -233,7 +272,179 @@ class Fragment {
       }
     }
   }
+}
+
+// Arc 
+class Arc {
+  int numTraits, lengthTrait, range, strokeWeight;
+  float depart, spaceTrait;
+  int c;
+
+  Trait[] traits;
+  float[] pos;
+  float[] posTarget;
+
+  Arc(int _range) {
+    range = _range;
+    numTraits = (int)random(10, 50);
+    spaceTrait = (int)random(2, 5);
+    depart = random(360);
+    lengthTrait = (int)random(1, 50);
+    strokeWeight = (int)random(1, 10);
+    c = color(255);
+    
+    traits = new Trait[numTraits];
+    pos = new float[numTraits];
+    posTarget = new float[numTraits];
+
+    for(int i = 0; i < numTraits; i++) {
+      traits[i] = new Trait(i, strokeWeight, lengthTrait, c);
+      pos[i] = 0;
+      posTarget[i] = depart + i * spaceTrait;
+    }
+  }
+
+  public void draw() {
+    for(int i = 0; i < numTraits; i++) {
+      pushMatrix();
+        rotate(radians(depart + i * spaceTrait));
+        translate(250 - range * 30, 0);
+        traits[i].draw();
+      popMatrix();
+
+      if ((i + 1) * spaceTrait > 335) i = numTraits;
+    }
+  }
+
+  public void animate1() {
+    for(int i = 0; i < numTraits; i++) {
+      pushMatrix();
+        rotate(radians(depart + i * spaceTrait));
+        translate(250 - range * 30, 0);
+        traits[i].animate1();
+      popMatrix();
+
+      if ((i + 1) * spaceTrait > 335) i = numTraits;
+    }
+  }
+
+  public void animate2() {
+    for(int i = 0; i < numTraits; i++) {
+      pushMatrix();
+        rotate(radians(depart + i * spaceTrait));
+        translate(250 - range * 30, 0);
+        traits[i].animate2();
+      popMatrix();
+
+      if ((i + 1) * spaceTrait > 335) i = numTraits;
+    }
+  }
+
+  public void animate3() {
+    for(int i = 0; i < numTraits; i++) {
+      pushMatrix();
+        rotate(radians(depart + i * spaceTrait));
+        translate(250 - range * 30, 0);
+        traits[i].animate3();
+      popMatrix();
+
+      if ((i + 1) * spaceTrait > 335) i = numTraits;
+    }
+  }
+
+  public void animate4() {
+    for(int i = 0; i < numTraits; i++) {
+      pushMatrix();
+        rotate(radians(pos[i]));
+        translate(250 - range * 30, 0);
+        traits[i].animate1();
+      popMatrix();
+
+      pos[i] = ease(pos[i], posTarget[i], 0.05f);
+      if ((i + 1) * spaceTrait > 335) i = numTraits;
+    }
+  }
+
+  public void animate5() {
+    for(int i = 0; i < numTraits; i++) {
+      pushMatrix();
+        rotate(radians(pos[i]));
+        translate(250 - range * 30, 0);
+        traits[i].animate2();
+      popMatrix();
+
+      pos[i] = ease(pos[i], posTarget[i], 0.05f);
+      if ((i + 1) * spaceTrait > 335) i = numTraits;
+    }
+  }
+}
  
+class Trait {
+  int id, strokeWeightTarget, lengthTraitTarget, transpTarget;
+  float strokeWeight, lengthTrait, transp;
+  int c;
+
+  Trait(int _id, int _strokeWeight, int _lengthTrait, int _c) {
+    id = _id;
+    strokeWeightTarget = _strokeWeight;
+    c = _c;
+    lengthTraitTarget = _lengthTrait;
+    transpTarget = 55;
+  }
+
+  public void draw() {
+    strokeWeight(strokeWeightTarget);
+    stroke(c, transpTarget);
+    line(0, 0, lengthTraitTarget, 0);
+  }
+
+  public void animate1() {
+    strokeWeight(strokeWeight);
+    stroke(c, transpTarget);
+    line(0, 0, lengthTrait, 0);
+    lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1f);
+    strokeWeight = ease(strokeWeight, strokeWeightTarget, 0.1f);
+  }
+
+  public void animate2() {
+    strokeWeight(strokeWeightTarget);
+    stroke(c,transp);
+    line(0, 0, lengthTrait, 0);
+    lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1f);
+    transp = ease(transp, transpTarget, 0.1f);
+  }
+
+  public void animate3() {
+    strokeWeight(strokeWeightTarget);
+    stroke(c, transpTarget);
+    line(0, 0, lengthTrait, 0);
+    lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1f);
+  }
+}
+
+public void generateArcs() {
+  strokeCap(SQUARE);
+  deux = false;
+  rnd = true;
+  fadeTimer = 0;
+  al = 0;
+  if (rnd) deux = random(1) > .3f ? deux : random(1) > .5f;
+  mode = (int)random(1, 6);
+  arcs = new ArrayList<Arc>();
+
+  int numArcs;
+  for (int k = 0; k < 2; k++) {
+    numArcs = (int)random(3, 9);
+    for (int j = 0; j < numArcs; j++) {
+      arcs.add(new Arc(j));
+    }
+  }
+}
+ 
+public float ease(float variable, float target, float easingVal) {
+  float d = target - variable;
+  if (abs(d) > 1) variable += d * easingVal;
+  return variable;
 }
 
 // ************************************************************************************
@@ -245,20 +456,16 @@ public void myAudioDataUpdate() {
 		float tempIndexCon = constrain(tempIndexAvg, 0, myAudioMax);
 		myAudioData[i]     = tempIndexCon;
 		myAudioIndexAmp		+= myAudioIndexStep;
-		println(myAudioData);
+		// println(myAudioData);
 	}
-
-	myAudioIndexAmp 		 = myAudioIndex;
+	myAudioIndexAmp = myAudioIndex;
 }
 
 public void myAudioDataWidget() {
-	noLights();
-	hint(DISABLE_DEPTH_TEST);
 	noStroke(); fill(0, 200); rect(0, height - 112, width, 102);
 	for (int i = 0; i < myAudioRange; ++i) {
 		fill(0xffCCCCCC); rect(10 + (i * 15), (height - myAudioData[i]) - 11, 10, myAudioData[i]);
 	}
-	hint(ENABLE_DEPTH_TEST);
 }
 
 public void stop() {
