@@ -26,9 +26,7 @@ float[]       myAudioData      = new float[myAudioRange];
 
 ArrayList<Arc> arcs = new ArrayList<Arc>();
 int mode;
-boolean deux;
 boolean rnd;
-int fadeTimer;
 
 int num = 200, frames = 480, edge = 40;
 Fragment[] fragments = new Fragment[num];
@@ -58,11 +56,6 @@ void setup() {
     fragments[i] = new Fragment(x, y);
   }
   generateArcs();
-}
-
-int al=0, al2=255;
-void fadeOut() {
-
 }
 
 // ************************************************************************************
@@ -108,31 +101,8 @@ void draw() {
     Arc a = (Arc)arcs.get(i);
     pushMatrix();
       translate(width / 2, height / 2);
-      switch(mode) {
-        case 0:
-          a.draw();
-          break;
-        case 1:
-          a.animate1();
-          break;
-        case 2:
-          a.animate2();
-          break;
-        case 3:
-          a.animate3();
-          break;
-        case 4:
-          a.animate4();
-          break;
-        case 5:
-          a.animate5();
-          break;
-      }
+      a.draw();
     popMatrix();
-    fadeTimer++;
-    if(fadeTimer>300){
-        fadeOut();
-    }
   }
 
   // ---------------
@@ -154,7 +124,7 @@ void draw() {
     }
 
     for (int i = 0; i < bsize - 1; i += 5) {
-      ellipse(0, 0, 7 * rad / i, 7 * rad / i);
+      ellipse(0, 0, 5 * rad / i + volume * 0.5, 5 * rad / i + volume * 0.5);
     }
 
     // ---------------
@@ -173,13 +143,13 @@ void draw() {
     // Points
     beginShape();
       noFill();
-      stroke(-1, 180);
+      stroke(255, 180);
       for (int i = 0; i < bsize; i += 26) {
         float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
         float y2 = (r + in.left.get(i) * 30) * sin(i * 2 * PI/bsize);
         vertex(x2, y2);
         pushStyle();
-          stroke(-1);
+          stroke(255, 255);
           strokeWeight(5);
           point(x2, y2);
         popStyle();
@@ -205,6 +175,8 @@ void draw() {
   if (keyPressed) {
     if (key == 'w') {
       showVisualizer = true;
+      // generateArcs();
+      // drawArcs();
     } else if (key == 'W') {
       showVisualizer = false;
     }
@@ -240,7 +212,6 @@ class Fragment {
     float vari = map(sin(theta + offSet), -1, 1, -2, -2);
     px = map(sin(theta + offSet) , -1, 1, 0, width);
     py = y + sin(theta * dir) * radius * vari;
- 
   }
  
   void showLines() {
@@ -287,70 +258,9 @@ class Arc {
   void draw() {
     for(int i = 0; i < numTraits; i++) {
       pushMatrix();
-        rotate(radians(depart + i * spaceTrait));
+        rotate(radians(pos[i]));
         translate(250 - range * 30, 0);
         traits[i].draw();
-      popMatrix();
-
-      if ((i + 1) * spaceTrait > 335) i = numTraits;
-    }
-  }
-
-  void animate1() {
-    for(int i = 0; i < numTraits; i++) {
-      pushMatrix();
-        rotate(radians(depart + i * spaceTrait));
-        translate(250 - range * 30, 0);
-        traits[i].animate1();
-      popMatrix();
-
-      if ((i + 1) * spaceTrait > 335) i = numTraits;
-    }
-  }
-
-  void animate2() {
-    for(int i = 0; i < numTraits; i++) {
-      pushMatrix();
-        rotate(radians(depart + i * spaceTrait));
-        translate(250 - range * 30, 0);
-        traits[i].animate2();
-      popMatrix();
-
-      if ((i + 1) * spaceTrait > 335) i = numTraits;
-    }
-  }
-
-  void animate3() {
-    for(int i = 0; i < numTraits; i++) {
-      pushMatrix();
-        rotate(radians(depart + i * spaceTrait));
-        translate(250 - range * 30, 0);
-        traits[i].animate3();
-      popMatrix();
-
-      if ((i + 1) * spaceTrait > 335) i = numTraits;
-    }
-  }
-
-  void animate4() {
-    for(int i = 0; i < numTraits; i++) {
-      pushMatrix();
-        rotate(radians(pos[i]));
-        translate(250 - range * 30, 0);
-        traits[i].animate1();
-      popMatrix();
-
-      pos[i] = ease(pos[i], posTarget[i], 0.05);
-      if ((i + 1) * spaceTrait > 335) i = numTraits;
-    }
-  }
-
-  void animate5() {
-    for(int i = 0; i < numTraits; i++) {
-      pushMatrix();
-        rotate(radians(pos[i]));
-        translate(250 - range * 30, 0);
-        traits[i].animate2();
       popMatrix();
 
       pos[i] = ease(pos[i], posTarget[i], 0.05);
@@ -358,7 +268,8 @@ class Arc {
     }
   }
 }
- 
+
+// Arc Traits
 class Trait {
   int id, strokeWeightTarget, lengthTraitTarget, transpTarget;
   float strokeWeight, lengthTrait, transp;
@@ -374,41 +285,17 @@ class Trait {
 
   void draw() {
     strokeWeight(strokeWeightTarget);
-    stroke(c, transpTarget);
-    line(0, 0, lengthTraitTarget, 0);
-  }
-
-  void animate1() {
-    strokeWeight(strokeWeight);
-    stroke(c, transpTarget);
-    line(0, 0, lengthTrait, 0);
-    lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1);
-    strokeWeight = ease(strokeWeight, strokeWeightTarget, 0.1);
-  }
-
-  void animate2() {
-    strokeWeight(strokeWeightTarget);
     stroke(c,transp);
     line(0, 0, lengthTrait, 0);
     lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1);
     transp = ease(transp, transpTarget, 0.1);
   }
-
-  void animate3() {
-    strokeWeight(strokeWeightTarget);
-    stroke(c, transpTarget);
-    line(0, 0, lengthTrait, 0);
-    lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1);
-  }
 }
 
+// Arc Helpers
 void generateArcs() {
   strokeCap(SQUARE);
-  deux = false;
   rnd = true;
-  fadeTimer = 0;
-  al = 0;
-  if (rnd) deux = random(1) > .3 ? deux : random(1) > .5;
   mode = (int)random(1, 6);
   arcs = new ArrayList<Arc>();
 
@@ -418,6 +305,16 @@ void generateArcs() {
     for (int j = 0; j < numArcs; j++) {
       arcs.add(new Arc(j));
     }
+  }
+}
+
+void drawArcs() {
+  for (int i = 0; i < arcs.size(); i++) {
+    Arc a = (Arc)arcs.get(i);
+    pushMatrix();
+      translate(width / 2, height / 2);
+      a.draw();
+    popMatrix();
   }
 }
  
@@ -450,8 +347,10 @@ void myAudioDataWidget() {
 
 void stop() {
   myAudio.close();
-  minim.stop();  
+  minim.stop();
   super.stop();
 }
 
-// ************************************************************************************
+void settings() {
+  fullScreen();
+}
