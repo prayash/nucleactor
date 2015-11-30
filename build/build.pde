@@ -7,7 +7,7 @@ AudioInput    in;
 FFT           myAudioFFT;
 
 int           r                = 200;
-float         rad              = 70;
+float         rad              = 150;
 int           bsize;
 BeatDetect    beat;
 int           colorCounter     = 0;
@@ -25,7 +25,6 @@ float         myAudioIndexStep = 0.35;
 float[]       myAudioData      = new float[myAudioRange];
 
 ArrayList<Arc> arcs = new ArrayList<Arc>();
-int mode;
 boolean rnd;
 
 int num = 200, frames = 480, edge = 40;
@@ -56,6 +55,7 @@ void setup() {
     fragments[i] = new Fragment(x, y);
   }
   generateArcs();
+
 }
 
 // ************************************************************************************
@@ -69,7 +69,6 @@ void draw() {
   int volume   = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
   int trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
   int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
-
 
   // ---------------
   // Background
@@ -96,14 +95,7 @@ void draw() {
   endShape();
   if (gradientVariance > 15) gradientVariance += 50;
   colorCounter += gradientVariance;
-
-  for (int i = 0; i < arcs.size(); i++) {
-    Arc a = (Arc)arcs.get(i);
-    pushMatrix();
-      translate(width / 2, height / 2);
-      a.draw();
-    popMatrix();
-  }
+  drawArcs();
 
   // ---------------
   // Nucleactor
@@ -116,15 +108,15 @@ void draw() {
     noStroke();
     fill(-1, 150);
 
-    if (beat.isOnset()) {
-      rad = rad * 0.85;
-      fill(0, 149, 168, 200);
-    } else {
-      rad = 150;
-    }
+    // if (beat.isOnset()) {
+    //   rad = rad * 0.85;
+    //   fill(0, 149, 168, 200);
+    // } else {
+    //   rad = 150;
+    // }
 
     for (int i = 0; i < bsize - 1; i += 5) {
-      ellipse(0, 0, 5 * rad / i + volume * 0.5, 5 * rad / i + volume * 0.5);
+      ellipse(0, 0, 5 * rad / i + volume, 5 * rad / i + volume);
     }
 
     // ---------------
@@ -143,18 +135,27 @@ void draw() {
     // Points
     beginShape();
       noFill();
-      stroke(255, 180);
-      for (int i = 0; i < bsize; i += 26) {
+      stroke(255, 155);
+      for (int i = 0; i < bsize; i += 32) {
         float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
         float y2 = (r + in.left.get(i) * 30) * sin(i * 2 * PI/bsize);
         vertex(x2, y2);
         pushStyle();
-          stroke(255, 255);
+          stroke(0, 155);
           strokeWeight(5);
           point(x2, y2);
+          println(x2);
         popStyle();
       }
     endShape();
+
+    // ---------------
+    // Arcs
+    for (int i = 0; i < arcs.size(); i++) {
+      Arc a = (Arc)arcs.get(i);
+      a.draw();
+    }
+
   popMatrix();
   // --- End Nucleus -- //
 
@@ -176,7 +177,7 @@ void draw() {
     if (key == 'w') {
       showVisualizer = true;
       // generateArcs();
-      // drawArcs();
+      drawArcs();
     } else if (key == 'W') {
       showVisualizer = false;
     }
@@ -258,7 +259,7 @@ class Arc {
   void draw() {
     for(int i = 0; i < numTraits; i++) {
       pushMatrix();
-        rotate(radians(pos[i]));
+        rotate(radians(pos[i]) + (frameCount * 0.025));
         translate(250 - range * 30, 0);
         traits[i].draw();
       popMatrix();
@@ -296,7 +297,6 @@ class Trait {
 void generateArcs() {
   strokeCap(SQUARE);
   rnd = true;
-  mode = (int)random(1, 6);
   arcs = new ArrayList<Arc>();
 
   int numArcs;
@@ -351,6 +351,6 @@ void stop() {
   super.stop();
 }
 
-void settings() {
-  fullScreen();
-}
+// void settings() {
+//   fullScreen();
+// }
