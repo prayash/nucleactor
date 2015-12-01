@@ -100,21 +100,15 @@ void draw() {
   // ---------------
   // Nucleactor
   pushMatrix();
+
+    colorMode(RGB);
+    translate(width/2, height/2);
+
     // ---------------
     // Nucleus
-    colorMode(RGB); // Reset colorMode
-    translate(width/2, height/2);
     noFill();
     noStroke();
     fill(-1, 150);
-
-    // if (beat.isOnset()) {
-    //   rad = rad * 0.85;
-    //   fill(0, 149, 168, 200);
-    // } else {
-    //   rad = 150;
-    // }
-
     for (int i = 0; i < bsize - 1; i += 5) {
       ellipse(0, 0, 5 * rad / i + volume, 5 * rad / i + volume);
     }
@@ -260,7 +254,7 @@ class Arc {
     for(int i = 0; i < numTraits; i++) {
       pushMatrix();
         rotate(radians(pos[i]) + (frameCount * 0.025));
-        translate(250 - range * 30, 0);
+        translate(300 - range * 30, 0);
         traits[i].draw();
       popMatrix();
 
