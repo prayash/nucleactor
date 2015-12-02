@@ -9,7 +9,6 @@ FFT           myAudioFFT;
 int           r                = 200;
 float         rad              = 150;
 int           bsize;
-BeatDetect    beat;
 int           colorCounter     = 0;
 
 boolean       showVisualizer   = true;
@@ -35,12 +34,11 @@ int volume;
 
 void setup() {
   size(700, 700);
+  hint(ENABLE_STROKE_PURE);
 
-  minim   = new Minim(this);
+  minim = new Minim(this);
   in = minim.getLineIn(); // getLineIn(type, bufferSize, sampleRate, bitDepth);
-  
   bsize = in.bufferSize();
-  beat = new BeatDetect();
 
   // Fast Fourier Transform
   myAudioFFT = new FFT(in.bufferSize(), in.sampleRate());
@@ -53,6 +51,8 @@ void setup() {
     float y = (height - 2) / float(num) * i;
     fragments[i] = new Fragment(x, y);
   }
+
+  // Arc generator
   generateArcs();
 
 }
@@ -65,7 +65,7 @@ void draw() {
   myAudioDataUpdate();
 
   // Audio Data Mappings
-  volume   = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
+  volume = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
   int trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
   int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
@@ -139,16 +139,12 @@ void draw() {
     // Points
     beginShape();
       noFill();
-      stroke(255, 255);
       for (int i = 0; i < bsize - 1; i += 32) {
         float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
-        // float y2 = (r + in.left.get(i) * -30) * sin(i * 2 * PI/bsize);
-        float y2 = 50;
-        // vertex(x2, y2);
-        point(x2, y2);
-        println("x2: " + x2 + " " + "y2: " + y2);
+        float y2 = (r + in.left.get(i) * -30) * sin(i * 2 * PI/bsize);
+        // println("x2: " + x2 + " " + "y2: " + y2);
         pushStyle();
-          stroke(0, 155);
+          stroke(80, 255);
           strokeWeight(5);
           point(x2, y2);
         popStyle();
@@ -157,10 +153,10 @@ void draw() {
 
     // ---------------
     // Arcs
-    // for (int i = 0; i < arcs.size(); i++) {
-    //   Arc a = (Arc)arcs.get(i);
-    //   a.draw();
-    // }
+    for (int i = 0; i < arcs.size(); i++) {
+      Arc a = (Arc)arcs.get(i);
+      a.draw();
+    }
 
   popMatrix();
   // --- End Nucleus -- //
@@ -288,7 +284,6 @@ class Trait {
 
 // Arc Helpers
 void generateArcs() {
-  strokeCap(SQUARE);
   rnd = true;
   arcs = new ArrayList<Arc>();
 
