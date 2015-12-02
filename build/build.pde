@@ -61,7 +61,6 @@ void setup() {
 
 void draw() {
   myAudioFFT.forward(in.mix);
-  beat.detect(in.mix);
   myAudioDataUpdate();
 
   // Audio Data Mappings
