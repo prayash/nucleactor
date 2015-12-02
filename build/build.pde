@@ -25,7 +25,7 @@ float[]       myAudioData      = new float[myAudioRange];
 ArrayList<Arc> arcs = new ArrayList<Arc>();
 boolean rnd;
 
-int num = 200, frames = 480, edge = 40;
+int num = 150, frames = 480, edge = 40;
 Fragment[] fragments = new Fragment[num];
 float theta;
 int volume;
@@ -206,7 +206,7 @@ class Fragment {
   void showLines() {
     for (int i = 0; i < fragments.length; i++) {
       float distance = dist(px, py, fragments[i].px, fragments[i].py);
-      if (distance > 0 && distance < 60) {
+      if (distance > 0 && distance < 100) {
         // stroke(0, 255);
         line(px, py, fragments[i].px, fragments[i].py);
       }
@@ -328,6 +328,6 @@ void stop() {
   super.stop();
 }
 
-// void settings() {
-//   fullScreen();
-// }
+void settings() {
+  fullScreen();
+}
