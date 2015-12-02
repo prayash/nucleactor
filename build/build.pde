@@ -12,7 +12,6 @@ int           bsize;
 BeatDetect    beat;
 int           colorCounter     = 0;
 
-float         volume;
 boolean       showVisualizer   = true;
 
 int           myAudioRange     = 11;
@@ -30,6 +29,7 @@ boolean rnd;
 int num = 200, frames = 480, edge = 40;
 Fragment[] fragments = new Fragment[num];
 float theta;
+int volume;
 
 // ************************************************************************************
 
@@ -44,7 +44,6 @@ void setup() {
 
   // Fast Fourier Transform
   myAudioFFT = new FFT(in.bufferSize(), in.sampleRate());
-  // println("bufferSize: " + in.bufferSize() + " . . . " + "sampleRate: " + in.sampleRate());
   myAudioFFT.linAverages(myAudioRange);
   // myAudioFFT.window(FFT.GAUSS);
 
@@ -66,7 +65,7 @@ void draw() {
   myAudioDataUpdate();
 
   // Audio Data Mappings
-  int volume   = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
+  volume   = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
   int trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
   int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
@@ -95,7 +94,18 @@ void draw() {
   endShape();
   if (gradientVariance > 15) gradientVariance += 50;
   colorCounter += gradientVariance;
-  drawArcs();
+
+  // ---------------
+  // Fragments
+  stroke(-1, trebleWeight);
+  strokeWeight(volume);
+  for (int i = 0; i < fragments.length; i++) {
+    fragments[i].x = myAudioData[5] * 5;
+    fragments[i].px = myAudioData[5] * 50;
+    fragments[i].py = myAudioData[6] * 5;
+    fragments[i].run();
+  }
+  theta += TWO_PI/frames * 0.5;
 
   // ---------------
   // Nucleactor
@@ -129,41 +139,31 @@ void draw() {
     // Points
     beginShape();
       noFill();
-      stroke(255, 155);
-      for (int i = 0; i < bsize; i += 32) {
+      stroke(255, 255);
+      for (int i = 0; i < bsize - 1; i += 32) {
         float x2 = (r + in.left.get(i) * 30) * cos(i * 2 * PI/bsize);
-        float y2 = (r + in.left.get(i) * 30) * sin(i * 2 * PI/bsize);
-        vertex(x2, y2);
+        // float y2 = (r + in.left.get(i) * -30) * sin(i * 2 * PI/bsize);
+        float y2 = 50;
+        // vertex(x2, y2);
+        point(x2, y2);
+        println("x2: " + x2 + " " + "y2: " + y2);
         pushStyle();
           stroke(0, 155);
           strokeWeight(5);
           point(x2, y2);
-          println(x2);
         popStyle();
       }
     endShape();
 
     // ---------------
     // Arcs
-    for (int i = 0; i < arcs.size(); i++) {
-      Arc a = (Arc)arcs.get(i);
-      a.draw();
-    }
+    // for (int i = 0; i < arcs.size(); i++) {
+    //   Arc a = (Arc)arcs.get(i);
+    //   a.draw();
+    // }
 
   popMatrix();
   // --- End Nucleus -- //
-
-  // ---------------
-  // Fragments
-  stroke(-1, trebleWeight);
-  strokeWeight(volume);
-  for (int i = 0; i < fragments.length; i++) {
-    fragments[i].x = myAudioData[5] * 5;
-    fragments[i].px = myAudioData[5] * 50;
-    fragments[i].py = myAudioData[6] * 5;
-    fragments[i].run();
-  }
-  theta += TWO_PI/frames * 0.5;
 
   // ---------------
   // Visualizer
@@ -171,7 +171,6 @@ void draw() {
     if (key == 'w') {
       showVisualizer = true;
       // generateArcs();
-      drawArcs();
     } else if (key == 'W') {
       showVisualizer = false;
     }
@@ -258,7 +257,7 @@ class Arc {
         traits[i].draw();
       popMatrix();
 
-      pos[i] = ease(pos[i], posTarget[i], 0.05);
+      pos[i] = posTarget[i];
       if ((i + 1) * spaceTrait > 335) i = numTraits;
     }
   }
@@ -280,10 +279,10 @@ class Trait {
 
   void draw() {
     strokeWeight(strokeWeightTarget);
-    stroke(c,transp);
+    stroke(c, transp * volume * 0.5);
     line(0, 0, lengthTrait, 0);
     lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1);
-    transp = ease(transp, transpTarget, 0.1);
+    transp = ease(transp, transpTarget, 0.7);
   }
 }
 
@@ -299,16 +298,6 @@ void generateArcs() {
     for (int j = 0; j < numArcs; j++) {
       arcs.add(new Arc(j));
     }
-  }
-}
-
-void drawArcs() {
-  for (int i = 0; i < arcs.size(); i++) {
-    Arc a = (Arc)arcs.get(i);
-    pushMatrix();
-      translate(width / 2, height / 2);
-      a.draw();
-    popMatrix();
   }
 }
  
