@@ -11,7 +11,7 @@ float         rad              = 150;
 int           bsize;
 int           colorCounter     = 0;
 
-boolean       showVisualizer   = true;
+boolean       showVisualizer   = false;
 
 int           myAudioRange     = 11;
 int           myAudioMax       = 100;
@@ -124,13 +124,13 @@ void draw() {
 
     // ---------------
     // Lines
-    stroke(-1, trebleWeight / 2); // stroke alpha mapped to treble volume
+    stroke(-1, trebleWeight); // stroke alpha mapped to treble volume
     for (int i = 0; i < bsize - 1; i += 5) {
       float x = (r) * cos(i * 2 * PI/bsize);
       float y = (r) * sin(i * 2 * PI/bsize);
-      float x2 = (r + in.left.get(i) * 20) * cos(i * 2 * PI/bsize);
-      float y2 = (r + in.left.get(i) * 20) * sin(i * 2 * PI/bsize);
-      strokeWeight(trebleWeight * 0.0125);
+      float x2 = (r + in.left.get(i) * 40) * cos(i * 2 * PI/bsize);
+      float y2 = (r + in.left.get(i) * 40) * sin(i * 2 * PI/bsize);
+      strokeWeight(trebleWeight * 0.015);
       line(x, y, x2, y2);
     }
 
@@ -168,6 +168,8 @@ void draw() {
       // generateArcs();
     } else if (key == 'W') {
       showVisualizer = false;
+    } else if (key == 's') {
+      saveFrame();
     }
   }
 
@@ -274,7 +276,7 @@ class Trait {
 
   void draw() {
     strokeWeight(strokeWeightTarget);
-    stroke(c, transp * volume * 0.5);
+    stroke(c, transp * volume * 0.75);
     line(0, 0, lengthTrait, 0);
     lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1);
     transp = ease(transp, transpTarget, 0.7);
