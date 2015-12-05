@@ -22,13 +22,14 @@ float         myAudioIndexAmp  = myAudioIndex;
 float         myAudioIndexStep = 0.35;
 float[]       myAudioData      = new float[myAudioRange];
 
-ArrayList<Arc> arcs = new ArrayList<Arc>();
-boolean rnd;
+int volume;
+int trebleWeight;
+
 
 int num = 150, frames = 480, edge = 40;
 Fragment[] fragments = new Fragment[num];
 float theta;
-int volume;
+ArrayList<Arc> arcs = new ArrayList<Arc>();
 
 // ************************************************************************************
 
@@ -65,7 +66,7 @@ void draw() {
 
   // Audio Data Mappings
   volume = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
-  int trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
+  trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
   int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
   // ---------------
@@ -104,7 +105,7 @@ void draw() {
     fragments[i].py = myAudioData[6] * 5;
     fragments[i].run();
   }
-  theta += TWO_PI/frames * 0.5;
+  theta += TWO_PI/frames * 0.35;
 
   // ---------------
   // Nucleactor
@@ -276,7 +277,7 @@ class Trait {
 
   void draw() {
     strokeWeight(strokeWeightTarget);
-    stroke(c, transp * volume * 0.75);
+    stroke(c, trebleWeight * 0.45);
     line(0, 0, lengthTrait, 0);
     lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1);
     transp = ease(transp, transpTarget, 0.7);
@@ -285,7 +286,6 @@ class Trait {
 
 // Arc Helpers
 void generateArcs() {
-  rnd = true;
   arcs = new ArrayList<Arc>();
 
   int numArcs;
