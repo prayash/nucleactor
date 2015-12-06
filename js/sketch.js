@@ -12,13 +12,8 @@ var osc;
 var envelope;
 var amplitude;
 var reverb;
-var notes = [ 50, 54, 57, 61, 64, 66, 69 ];
-var diam=10;
-
-var yoff = 0.0;        // 2nd dimension of perlin noise
-var waveColor, waveColor2, waveColor3;
-var waveColorArr;
-
+var octave = 1;
+var notes = [ 50, 54, 57, 61, 64, 66, 69 , 73, 76];
 
 // ************************************************************************************
 
@@ -30,15 +25,10 @@ function setup() {
     num = 200;
   }
 
-  waveColor = color(0,50,120,100);
-  waveColor2 = color(0,100,150,100);
-  waveColor3 = color(0,200,250,100);
-  noiseDetail(2,0.2);
-
   osc = new p5.SinOsc();
   osc.start();
   osc.amp(0);
-  envelope = new p5.Env(0.5, 0.25, 0.5, 0.5);
+  envelope = new p5.Env(0.25, 0.25, 0.5, 0.5);
 
   reverb = new p5.Reverb();
   reverb.process(osc, 5, 5);
@@ -95,26 +85,6 @@ function draw() {
   colorCounter += gradientVariance;
 
   // *********************************
-
-  // Waves
-  // noStroke();
-  // colorMode(RGB);
-  // for (var i = 0; i <= 2; i++) {
-  //   beginShape();
-  //     fill(255, 50);
-  //     var xoff = 0;
-
-  //     for (var x = 0; x <= width + 100; x += 100) {
-  //       var y = map(noise(xoff, yoff - 0.5 * i), 0, 1, windowHeight/3.5 * (i), height - height/10 + height/10 * i);
-  //       vertex(x, y);
-  //       xoff += 0.05;
-  //     }
-
-  //     vertex(width, height);
-  //     vertex(0, height);
-  //   endShape(CLOSE);
-  // }
-  // yoff += 0.01 + volume/500.0;
 
   // ---------------
   // Nucleactor
@@ -181,24 +151,62 @@ function draw() {
 
 }
 
-function touchMoved() {
+// function touchMoved() {
   // line(touchX, touchY, ptouchX, ptouchY);
-   var key = floor(map(touchX, 0, windowWidth, 0, notes.length));
-  playNote(notes[key]);
+//   var key = floor(map(touchX, 0, windowWidth, 0, notes.length));
+//   playNote(notes[key]);
+// }
+
+// function touchStarted() {
+//   var key = floor(map(touchX, 0, windowWidth, 0, notes.length));
+//   playNote(notes[key]);
+// }
+
+// function touchEnded() {
+//   osc.fade(0, 0.5);
+// }
+
+function keyPressed() {
+  console.log(keyCode);
+  switch(keyCode) {
+    case 65:
+      playNote(notes[0]);
+      break;
+    case 83:
+      playNote(notes[1]);
+      break;
+    case 68:
+      playNote(notes[2]);
+      break;
+    case 70:
+      playNote(notes[3]);
+      break;
+    case 71:
+      playNote(notes[4]);
+      break;
+    case 72:
+      playNote(notes[5]);
+      break;
+    case 74:
+      playNote(notes[6]);
+      break;
+    case 75:
+      playNote(notes[7]);
+      break;
+    case 76:
+      playNote(notes[8]);
+      break;
+  }
 }
 
-function touchStarted() {
-  var key = floor(map(touchX, 0, windowWidth, 0, notes.length));
-  playNote(notes[key]);
-}
-
-function touchEnded() {
-  osc.fade(0, 0.5);
+function keyReleased() {
+  // osc.fade(0,0.5);
 }
 
 // A function to play a note
 function playNote(note) {
   osc.freq(midiToFreq(note));
+  // osc.fade(0.5, 0.2);
   envelope.play(osc);
 }
 
