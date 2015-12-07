@@ -28,7 +28,7 @@ function setup() {
   osc = new p5.SinOsc();
   osc.start();
   osc.amp(0);
-  envelope = new p5.Env(0.25, 0.25, 0.5, 0.5);
+  envelope = new p5.Env(0.5, 0.25, 0.5, 0.5);
 
   reverb = new p5.Reverb();
   reverb.process(osc, 5, 5);
@@ -196,6 +196,40 @@ function keyPressed() {
     case 76:
       playNote(notes[8]);
       break;
+  }
+}
+
+function keyReleased() {
+  console.log(keyCode);
+  switch(keyCode) {
+    case 65:
+      playNote(notes[0]);
+      break;
+    case 83:
+      playNote(notes[1]);
+      break;
+    case 68:
+      playNote(notes[2]);
+      break;
+    case 70:
+      playNote(notes[3]);
+      break;
+    case 71:
+      playNote(notes[4]);
+      break;
+    case 72:
+      playNote(notes[5]);
+      break;
+    case 74:
+      playNote(notes[6]);
+      break;
+    case 75:
+      playNote(notes[7]);
+      break;
+    case 76:
+      playNote(notes[8]);
+      break;
+    osc.fade(0,0.5);
   }
 }
 
