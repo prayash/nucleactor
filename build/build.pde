@@ -66,7 +66,8 @@ void draw() {
 
   // Audio Data Mappings
   volume = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
-  trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
+  trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + 
+  myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
   int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
   // ---------------
