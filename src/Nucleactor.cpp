@@ -9,16 +9,17 @@ using namespace ci::app;
 
 class Nucleactor : public App {
 public:
-    virtual void	setup();
-    virtual void	update();
-    virtual void	draw();
+    void        setup() override;
+    void        update() override;
+    void        draw() override;
     
-    ColorA          mColor;
+    ColorA      mColor;
 };
 
 class Fragment : public App {
 public:
     float x, y, px, py, offSet, radius, theta; int dir; ColorA color;
+
     Fragment() {
         x = 0;
         y = 0;
@@ -61,6 +62,8 @@ void Nucleactor::setup() {
     for (int i = 0; i < 150; i++) {
         fragments[i].x = rand() % getWindowWidth();
         fragments[i].y = (getWindowHeight() - 2) / float(150) * i;
+//        fragments[i] = new Fragment(x, y);
+        
         CI_LOG_V(fragments[i].x);
         CI_LOG_V(fragments[i].y);
     }
@@ -79,14 +82,9 @@ void Nucleactor::draw() {
     gl::clear();
     //	gl::enableDepthRead();
     
-    //	gl::setMatrices( mCam );
-    //	gl::multModelMatrix( mModelMatrix );
-    
-    //	gl::drawCoordinateFrame();
-    //	gl::drawColorCube( vec3::zero(), vec3( 1, 1, 1 ) );
-    //
-    float gray = sin( getElapsedSeconds() ) * 0.5f + 0.5f;
-    gl::clear( Color( CM_HSV, gray, 0.5f, 0.5f ), true );
+    // Gradience
+    float hue = sin(getElapsedSeconds()) * 0.5f + 0.5f;
+    gl::clear( Color(CM_HSV, hue, 0.5f, 0.5f ), true );
     
     
     // ---------------
