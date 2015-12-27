@@ -335,7 +335,7 @@
 					"-lz",
 					../blocks/FMOD/lib/ios/libfmodex_iphonesimulator.a,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = org.prayashthapa.Nucleactor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -360,7 +360,7 @@
 					"-lz",
 					../blocks/FMOD/lib/ios/libfmodex_iphonesimulator.a,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = org.prayashthapa.Nucleactor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;

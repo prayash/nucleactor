@@ -12,8 +12,42 @@ public:
     virtual void	setup();
     virtual void	update();
     virtual void	draw();
+    
+    ColorA          mColor;
+};
 
-    ci::ColorA      mColor;
+class Fragment : public App {
+public:
+    float x, y, px, py, offSet, radius, theta; int dir; ColorA color;
+    Fragment() {
+        x = 0;
+        y = 0;
+        offSet = rand() % 2 * M_PI;
+        radius = rand() % 10 + 5;
+        dir = rand() % 1 > .5 ? 1 : -1;
+    }
+    
+    void run() {
+        update();
+        showLines();
+    }
+    
+    void update() {
+//        float vari = map(sin(theta + offSet), -1, 1, -2, -2);
+//        px = map(sin(theta + offSet) , -1, 1, 0, getWindowWidth());
+//        py = y + sin(theta * dir) * radius * vari;
+    }
+    
+    void showLines() {
+//        for (int i = 0; i < fragments.length; i++) {
+//            float distance = dist(px, py, fragments[i].px, fragments[i].py);
+//            if (distance > 0 && distance < 100) {
+//                // stroke(0, 255);
+//                line(px, py, fragments[i].px, fragments[i].py);
+//            }
+//        }
+    }
+
 };
 
 // ************************************************************************************
@@ -21,6 +55,15 @@ public:
 void Nucleactor::setup() {
     // ** Setup
     CI_LOG_V( "Initializing...");
+    
+    // Fragments
+    Fragment fragments[150];
+    for (int i = 0; i < 150; i++) {
+        fragments[i].x = rand() % getWindowWidth();
+        fragments[i].y = (getWindowHeight() - 2) / float(150) * i;
+        CI_LOG_V(fragments[i].x);
+        CI_LOG_V(fragments[i].y);
+    }
 }
 
 // ************************************************************************************
