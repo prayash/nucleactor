@@ -1,19 +1,28 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/Camera.h"
-#include "cinder/Timeline.h"
 #include "cinder/Log.h"
+
+#include "cinder/audio/Context.h"
+#include "cinder/audio/GenNode.h"
+#include "cinder/audio/GainNode.h"
+
+#import <AVFoundation/AVFoundation.h>
 
 using namespace ci;
 using namespace ci::app;
+using namespace std;
 
 class Nucleactor : public App {
 public:
     void        setup() override;
-    void        update() override;
+//    void        update() override;
     void        draw() override;
+    void mouseDrag( MouseEvent event ) override;
     
     ColorA      mColor;
+    
+    audio::GenNodeRef	mGen;	// Gen's generate audio signals
+    audio::GainNodeRef	mGain;	// Gain modifies the volume of the signal
 };
 
 class Fragment : public App {
@@ -51,11 +60,21 @@ public:
 
 };
 
+
 // ************************************************************************************
 
 void Nucleactor::setup() {
     // ** Setup
-    CI_LOG_V( "Initializing...");
+    NSLog(@"Initializing...");
+    
+    // Headphone detection
+    AVAudioSessionRouteDescription* route = [[AVAudioSession sharedInstance] currentRoute];
+    for (AVAudioSessionPortDescription* desc in [route outputs]) {
+        if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones])
+            NSLog(@"Headphones connected.");
+        else
+            NSLog(@"No headphones.");
+    }
     
     // Fragments
     Fragment fragments[150];
@@ -64,16 +83,41 @@ void Nucleactor::setup() {
         fragments[i].y = (getWindowHeight() - 2) / float(150) * i;
 //        fragments[i] = new Fragment(x, y);
         
-        CI_LOG_V(fragments[i].x);
-        CI_LOG_V(fragments[i].y);
+//        CI_LOG_V(fragments[i].x);
+//        CI_LOG_V(fragments[i].y);
     }
+    
+    // You use the audio::Context to make new audio::Node instances (audio::master() is the speaker-facing Context).
+    auto ctx = audio::master();
+    mGen = ctx->makeNode( new audio::GenSineNode );
+    mGain = ctx->makeNode( new audio::GainNode );
+    
+    mGen->setFreq( 220 );
+    mGain->setValue( 0.5f );
+    
+    // connections can be made this way or with connect(). The master Context's getOutput() is the speakers by default.
+    mGen >> mGain >> ctx->getOutput();
+    
+    // Node's need to be enabled to process audio. EffectNode's are enabled by default, while NodeSource's (like Gen) need to be switched on.
+    mGen->enable();
+    
+    // Context also must be started. Starting and stopping this controls the entire DSP graph.
+    ctx->enable();
 }
 
 // ************************************************************************************
 
-void Nucleactor::update() {
-    // ** Update
+void Nucleactor::mouseDrag( MouseEvent event )
+{
+    mGen->setFreq( event.getPos().x );
+    mGain->setValue( 1.0f - (float)event.getPos().y / (float)getWindowHeight() );
 }
+
+// ************************************************************************************
+
+//void Nucleactor::update() {
+//    // ** Update
+//}
 
 // ************************************************************************************
 
@@ -85,6 +129,7 @@ void Nucleactor::draw() {
     // Gradience
     float hue = sin(getElapsedSeconds()) * 0.5f + 0.5f;
     gl::clear( Color(CM_HSV, hue, 0.5f, 0.5f ), true );
+    gl::clear( Color( 0, mGain->getValue(), 0.2f ) );
     
     
     // ---------------
@@ -129,4 +174,6 @@ void Nucleactor::draw() {
 
 // ************************************************************************************
 
-CINDER_APP( Nucleactor, RendererGl )
+CINDER_APP(Nucleactor, RendererGl, []( App::Settings *settings ) {
+    settings->setMultiTouchEnabled( false );
+})
