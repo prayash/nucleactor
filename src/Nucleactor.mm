@@ -15,19 +15,18 @@ using namespace std;
 class Nucleactor : public App {
 public:
     void        setup() override;
-//    void        update() override;
     void        draw() override;
-    void mouseDrag( MouseEvent event ) override;
+    void        mouseDrag(MouseEvent event) override;
     
     ColorA      mColor;
-    
     audio::GenNodeRef	mGen;	// Gen's generate audio signals
     audio::GainNodeRef	mGain;	// Gain modifies the volume of the signal
 };
 
 class Fragment : public App {
 public:
-    float x, y, px, py, offSet, radius, theta; int dir; ColorA color;
+    float x, y, px, py, offSet, radius, theta;
+    int dir; ColorA color;
 
     Fragment() {
         x = 0;
@@ -36,12 +35,12 @@ public:
         radius = rand() % 10 + 5;
         dir = rand() % 1 > .5 ? 1 : -1;
     }
-    
+
     void run() {
         update();
         showLines();
     }
-    
+
     void update() {
 //        float vari = map(sin(theta + offSet), -1, 1, -2, -2);
 //        px = map(sin(theta + offSet) , -1, 1, 0, getWindowWidth());
@@ -57,17 +56,16 @@ public:
 //            }
 //        }
     }
-
 };
 
 
 // ************************************************************************************
 
 void Nucleactor::setup() {
-    // ** Setup
+    // * Setup
     NSLog(@"Initializing...");
     
-    // Headphone detection
+    // * Headphone detection
     AVAudioSessionRouteDescription* route = [[AVAudioSession sharedInstance] currentRoute];
     for (AVAudioSessionPortDescription* desc in [route outputs]) {
         if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones])
@@ -76,7 +74,7 @@ void Nucleactor::setup() {
             NSLog(@"No headphones.");
     }
     
-    // Fragments
+    // * Fragments
     Fragment fragments[150];
     for (int i = 0; i < 150; i++) {
         fragments[i].x = rand() % getWindowWidth();
@@ -107,22 +105,15 @@ void Nucleactor::setup() {
 
 // ************************************************************************************
 
-void Nucleactor::mouseDrag( MouseEvent event )
-{
+void Nucleactor::mouseDrag( MouseEvent event ) {
     mGen->setFreq( event.getPos().x );
     mGain->setValue( 1.0f - (float)event.getPos().y / (float)getWindowHeight() );
 }
 
 // ************************************************************************************
 
-//void Nucleactor::update() {
-//    // ** Update
-//}
-
-// ************************************************************************************
-
 void Nucleactor::draw() {
-    // ** Draw
+    // * Draw
     gl::clear();
     //	gl::enableDepthRead();
     
@@ -151,7 +142,7 @@ void Nucleactor::draw() {
     int numCircles = 16;
     float radius = getWindowHeight() / 4 - 30;
     
-    for( int c = 0; c < numCircles; ++c ) {
+    for(int c = 0; c < numCircles; ++c) {
         float rel = c / (float)numCircles;
         float angle = rel * M_PI * 2;
         vec2 offset( cos( angle ), sin( angle ) );
