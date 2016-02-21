@@ -1,6 +1,6 @@
 // * CONSTANTS
 var CLIENT_ID       = "188bdc288184c969c82a24af4145c999";
-var TRACK_URL       = "https://soundcloud.com/effulgence/an-arrival";
+var TRACK_URL       = "http://soundcloud.com/effulgence/an-arrival";
 var BUFFER_SIZE     = 1024;
 
 var num             = 100
@@ -28,17 +28,14 @@ function preload() {
 
 function afterLoad(track) {
   streamUrl = track.stream_url + '?client_id=' + CLIENT_ID;
-  theTrack = loadSound(streamUrl, function(loadedTrack) {
-    // theTrack.loop();
-    theTrack.play();
-  });
+  theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); });
 }
 
 // ************************************************************************************
 // * Setup
 
 function setup() {
-  var myCanvas = createCanvas(windowWidth, windowHeight);
+  var myCanvas = createCanvas(displayWidth, displayHeight);
   myCanvas.parent("canvas");
 
   fft = new p5.FFT(1.0, BUFFER_SIZE);
@@ -46,11 +43,11 @@ function setup() {
 
   // Fragments
   for (var i = 0; i < num; i++) {
-    var x = random(windowWidth);
-    var y = (windowHeight - 2) / (num) * i;
+    var x = random(width);
+    var y = (height - 2) / (num) * i;
     fragments.push(new Fragment(x, y));
-    fragments[i].px = random(windowWidth);
-    fragments[i].py = random(windowHeight);
+    fragments[i].px = random(width);
+    fragments[i].py = random(height);
   }
 
   generateArcs();
@@ -116,10 +113,10 @@ function draw() {
     // * Waveform
     stroke(255, volume * 20);
     for (var i = 0; i < waveform.length - 1; i += 5) {
-      var x = (r) * cos(i * 2 * PI/waveform.length);
-      var y = (r) * sin(i * 2 * PI/waveform.length);
-      var x2 = (r + waveform[i] * 60) * cos(i * 2 * PI/waveform.length);
-      var y2 = (r + waveform[i] * 60) * sin(i * 2 * PI/waveform.length);
+      var x = (r) * sin(i * 2 * PI/waveform.length);
+      var y = (r) * cos(i * 2 * PI/waveform.length);
+      var x2 = (r + waveform[i] * 60) * sin(i * 2 * PI/waveform.length);
+      var y2 = (r + waveform[i] * 60) * cos(i * 2 * PI/waveform.length);
       strokeWeight(volume * 30);
       strokeCap(SQUARE);
       line(x, y, x2, y2);
@@ -267,5 +264,5 @@ function mousePressed() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(displayWidth, displayHeight);
 }
