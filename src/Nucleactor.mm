@@ -1,7 +1,8 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/Log.h"
-
+#include "cinder/Shape2d.h"
+#include "cinder/gl/gl.h"
 #include "cinder/audio/Context.h"
 #include "cinder/audio/GenNode.h"
 #include "cinder/audio/GainNode.h"
@@ -14,11 +15,12 @@ using namespace std;
 
 class Nucleactor : public App {
 public:
-    void        setup() override;
-    void        draw() override;
-    void        mouseDrag(MouseEvent event) override;
+    void                setup() override;
+    void                draw() override;
+    void                mouseDrag(MouseEvent event) override;
     
-    ColorA      mColor;
+    
+    ColorA              mColor;
     audio::GenNodeRef	mGen;	// Gen's generate audio signals
     audio::GainNodeRef	mGain;	// Gain modifies the volume of the signal
 };
@@ -48,6 +50,7 @@ public:
     }
     
     void showLines() {
+        
 //        for (int i = 0; i < fragments.length; i++) {
 //            float distance = dist(px, py, fragments[i].px, fragments[i].py);
 //            if (distance > 0 && distance < 100) {
@@ -84,7 +87,7 @@ void Nucleactor::setup() {
 //        CI_LOG_V(fragments[i].x);
 //        CI_LOG_V(fragments[i].y);
     }
-    
+
     // You use the audio::Context to make new audio::Node instances (audio::master() is the speaker-facing Context).
     auto ctx = audio::master();
     mGen = ctx->makeNode( new audio::GenSineNode );
@@ -122,7 +125,6 @@ void Nucleactor::draw() {
     gl::clear( Color(CM_HSV, hue, 0.5f, 0.5f ), true );
     gl::clear( Color( 0, mGain->getValue(), 0.2f ) );
     
-    
     // ---------------
     // Nucleus
     gl::enableAlphaBlending();
@@ -146,16 +148,45 @@ void Nucleactor::draw() {
         float rel = c / (float)numCircles;
         float angle = rel * M_PI * 2;
         vec2 offset( cos( angle ), sin( angle ) );
-
         gl::pushModelMatrix();
         // move to the correct position
         gl::translate( offset * radius );
         // set the color using HSV color
-        gl::color( Color( CM_HSV, rel, 1, 1 ) );
+        gl::color(Color( CM_HSV, rel, 1, 1));
         gl::color(ColorA( 1, 1, 1, 0.5f));
         // draw a circle relative to Model matrix
         gl::drawSolidCircle( vec2(), 5 );
+//        gl::drawLine(vec2(100, 100), vec2(200, 200));
         // restore the Model matrix
+        gl::popModelMatrix();
+    }
+    
+    for (int i = 0; i < 8; ++i) {
+        float radius = 100.0f;
+        gl::pushModelMatrix();
+        
+        Path2d  mPath1, mPath2, mPath3, mPath4;
+        mPath1.arc(vec2(0.0f, 0.0f), radius, M_PI * 0.001f, M_PI * 0.0f, true);
+        mPath1.arc(vec2(0.0f, 0.0f), radius + 15, M_PI * 0.0f, M_PI * 0.001f, false);
+        mPath1.close();
+        
+        mPath2.arc(vec2(0.0f, 0.0f), radius - 20, M_PI * 0.7f, M_PI * 1.3f, true);
+        mPath2.arc(vec2(0.0f, 0.0f), radius, M_PI * 1.3f, M_PI * 0.7f, false);
+        mPath2.close();
+        
+        mPath3.arc(vec2(0.0f, 0.0f), radius + 80, M_PI * 0.2f, M_PI * 0.0f, true);
+        mPath3.arc(vec2(0.0f, 0.0f), radius + 90, M_PI * 0.0f, M_PI * 0.2f, false);
+        mPath3.close();
+        
+        mPath4.arc(vec2(0.0f, 0.0f), radius + 60, M_PI * 0.4f, M_PI * 0.0f, false);
+        mPath4.arc(vec2(0.0f, 0.0f), radius + 80, M_PI * 0.0f, M_PI * 0.4f, true);
+        mPath4.close();
+        
+        gl::color(1, 1, 1, 0.1f);
+//        gl::drawSolid(mPath1);
+        gl::drawSolid(mPath2);
+        gl::drawSolid(mPath3);
+        gl::drawSolid(mPath4);
         gl::popModelMatrix();
     }
     
