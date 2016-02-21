@@ -129,7 +129,7 @@ function draw() {
       var y = (r) * cos(i * 2 * PI/waveform.length);
       var x2 = (r + waveform[i] * 80) * sin(i * 2 * PI/waveform.length);
       var y2 = (r + waveform[i] * 80) * cos(i * 2 * PI/waveform.length);
-      strokeWeight(volume * 30);
+      strokeWeight(volume * 15);
       strokeCap(SQUARE);
       line(x, y, x2, y2);
     }
