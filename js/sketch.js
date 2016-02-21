@@ -77,7 +77,7 @@ function draw() {
   // console.log(trebleWeight);
 
   // * Derived Parameters
-  var gradientVariance = map(volume, 0, 25, 0, 25);
+  var gradientVariance = map(volume, 0, 25, 0, 50);
 
   // ***********************************************
   // * Background
@@ -86,11 +86,11 @@ function draw() {
   noStroke();
   beginShape();
     // Yellows and Reds
-    fill(12.5 * sin((colorCounter + gradientVariance * 0.025 ) / 100.0) + 12.5, 1, 1);
+    fill(12.5 * sin((colorCounter + gradientVariance * 0.25 ) / 100.0) + 12.5, 1, 1);
     vertex(-width, -height);
 
     // Yellows and Whites
-    fill(12.5 * cos((colorCounter - gradientVariance * 0.025 ) / 200.0) + 37.5, 1, 1);
+    fill(12.5 * cos((colorCounter - gradientVariance * 0.25 ) / 200.0) + 37.5, 1, 1);
     vertex(width, -height);
 
     // Blues and Greens
@@ -124,12 +124,12 @@ function draw() {
 
     // * Waveform
     stroke(255, volume * 20);
-    for (var i = 0; i < waveform.length - 1; i += 8) {
+    for (var i = 0; i < waveform.length - 1; i += 16) {
       var x = (r) * sin(i * 2 * PI/waveform.length);
       var y = (r) * cos(i * 2 * PI/waveform.length);
       var x2 = (r + waveform[i] * 80) * sin(i * 2 * PI/waveform.length);
       var y2 = (r + waveform[i] * 80) * cos(i * 2 * PI/waveform.length);
-      strokeWeight(volume * 15);
+      strokeWeight(volume * 5);
       strokeCap(SQUARE);
       line(x, y, x2, y2);
     }
@@ -306,7 +306,7 @@ function keyPressed(e) {
 
 function createControls() {
   controls = true;
-  input = createInput("https://soundcloud.com/effulgence/an-arrival");
+  input = createInput("https://soundcloud.com/madeon/pay-no-mind");
   input.position(10, 10);
 
   button = createButton('GO');
