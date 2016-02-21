@@ -1,4 +1,6 @@
-// * CONSTANTS
+// Nucleactor by Prayash Thapa (effulgence.io)
+// ************************************************************************************
+
 var CLIENT_ID       = "188bdc288184c969c82a24af4145c999";
 var TRACK_URL       = "http://soundcloud.com/effulgence/transience";
 var BUFFER_SIZE     = 1024;
@@ -11,13 +13,11 @@ var colorCounter    = 0;
 var rad             = 150;
 var r               = 200;
 
-var streamUrl;
-var theTrack;
+var streamUrl, theTrack, controls;
 var volume, subWeight, trebleWeight;
 var button, input;
 
-var fragments = [];
-var arcs = [];
+var fragments = [], arcs = [];
 
 // ************************************************************************************
 // * Preload
@@ -45,13 +45,7 @@ function loadTrack(url) {
 function setup() {
   var myCanvas = createCanvas(displayWidth, displayHeight);
   myCanvas.parent('canvas');
-
-  input = createInput("https://soundcloud.com/effulgence/an-arrival");
-  input.position(10, 10);
-
-  button = createButton('GO');
-  button.position(280, 10);
-  button.mousePressed(loadTrack);
+  createControls();
 
   fft = new p5.FFT(1.0, BUFFER_SIZE);
   amplitude = new p5.Amplitude();
@@ -80,7 +74,7 @@ function draw() {
   // console.log(trebleWeight);
 
   // * Derived Parameters
-  var gradientVariance = map(volume, 0, 10, 0, 25);
+  var gradientVariance = map(volume, 0, 25, 0, 25);
 
   // ***********************************************
   // * Background
@@ -112,7 +106,7 @@ function draw() {
   stroke(255, volume / 2);
   strokeWeight(volume);
   for (var i = 0; i < fragments.length; i++) fragments[i].run();
-  theta += TWO_PI/frames * 0.35;
+  theta += TWO_PI/frames * 0.35 * (volume / 2);
 
   // - Nucleactor
   push();
@@ -166,6 +160,7 @@ function Fragment(_x, _y) {
   var px, py, offSet, radius;
   var dir;
   var col; var currentOrb;
+  var randRadius = random(2, 10);
 
   this.x = _x;
   this.y = _y;
@@ -189,6 +184,10 @@ function Fragment(_x, _y) {
       var distance = dist(px, py, fragments[i].px, fragments[i].py);
       if (distance > 25 && distance < 110) {
         line(px, py, fragments[i].px, fragments[i].py);
+        if (random(1) > 0.8 && volume < 2) {
+          fill(255, volume / 1.5);
+          ellipse(px, py, randRadius, randRadius);
+        }
       }
     }
   }
@@ -274,14 +273,41 @@ var ease = function(variable, target, easingVal) {
 // ************************************************************************************
 
 function mousePressed() {
-  // var fs = fullScreen();
-  // fullScreen(!fs);
+  var fs = fullScreen();
+  fullScreen(!fs);
 }
 
 function windowResized() {
   resizeCanvas(displayWidth, displayHeight);
 }
 
-function keyPressed() {
+function keyPressed(e) {
+  switch(keyCode) {
+    case 32:
+      e.preventDefault();
+      toggleControls();
+      break;
+  }
+}
 
+function createControls() {
+  controls = true;
+  input = createInput("https://soundcloud.com/effulgence/an-arrival");
+  input.position(10, 10);
+
+  button = createButton('GO');
+  button.position(280, 10);
+  button.mousePressed(loadTrack);
+}
+
+function toggleControls() {
+  if (controls) {
+    controls = false;
+    input.style('opacity', '0');
+    button.style('opacity', '0');
+  } else {
+    controls = true;
+    input.style('opacity', '1');
+    button.style('opacity', '1');
+  }
 }
