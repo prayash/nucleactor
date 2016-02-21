@@ -1,6 +1,6 @@
 // * CONSTANTS
 var CLIENT_ID       = "188bdc288184c969c82a24af4145c999";
-var TRACK_URL       = "http://soundcloud.com/effulgence/an-arrival";
+var TRACK_URL       = "http://soundcloud.com/effulgence/transience";
 var BUFFER_SIZE     = 1024;
 
 var num             = 100
@@ -14,6 +14,7 @@ var r               = 200;
 var streamUrl;
 var theTrack;
 var volume, subWeight, trebleWeight;
+var button, input;
 
 var fragments = [];
 var arcs = [];
@@ -31,12 +32,26 @@ function afterLoad(track) {
   theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); });
 }
 
+function loadTrack(url) {
+  theTrack.stop();
+  var trackUrl = input.value();
+  SC.initialize({ client_id: CLIENT_ID });
+  SC.resolve(trackUrl).then(afterLoad).catch(function(error) { console.log(error); });
+}
+
 // ************************************************************************************
 // * Setup
 
 function setup() {
   var myCanvas = createCanvas(displayWidth, displayHeight);
-  myCanvas.parent("canvas");
+  myCanvas.parent('canvas');
+
+  input = createInput("https://soundcloud.com/effulgence/an-arrival");
+  input.position(10, 10);
+
+  button = createButton('GO');
+  button.position(280, 10);
+  button.mousePressed(loadTrack);
 
   fft = new p5.FFT(1.0, BUFFER_SIZE);
   amplitude = new p5.Amplitude();
@@ -62,7 +77,7 @@ function draw() {
   var waveform = fft.waveform();
   volume = map((amplitude.getLevel() * 255), 0, 255, 0, 10);
   trebleWeight = fft.getEnergy("treble");
-  console.log(trebleWeight);
+  // console.log(trebleWeight);
 
   // * Derived Parameters
   var gradientVariance = map(volume, 0, 10, 0, 25);
@@ -112,11 +127,11 @@ function draw() {
 
     // * Waveform
     stroke(255, volume * 20);
-    for (var i = 0; i < waveform.length - 1; i += 5) {
+    for (var i = 0; i < waveform.length - 1; i += 8) {
       var x = (r) * sin(i * 2 * PI/waveform.length);
       var y = (r) * cos(i * 2 * PI/waveform.length);
-      var x2 = (r + waveform[i] * 60) * sin(i * 2 * PI/waveform.length);
-      var y2 = (r + waveform[i] * 60) * cos(i * 2 * PI/waveform.length);
+      var x2 = (r + waveform[i] * 80) * sin(i * 2 * PI/waveform.length);
+      var y2 = (r + waveform[i] * 80) * cos(i * 2 * PI/waveform.length);
       strokeWeight(volume * 30);
       strokeCap(SQUARE);
       line(x, y, x2, y2);
@@ -259,10 +274,14 @@ var ease = function(variable, target, easingVal) {
 // ************************************************************************************
 
 function mousePressed() {
-  var fs = fullScreen();
-  fullScreen(!fs);
+  // var fs = fullScreen();
+  // fullScreen(!fs);
 }
 
 function windowResized() {
   resizeCanvas(displayWidth, displayHeight);
+}
+
+function keyPressed() {
+
 }

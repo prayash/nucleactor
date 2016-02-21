@@ -1,1 +1,18 @@
-/* Empty. Add your own CSS if you like */
+button {
+  border: none;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5em;
+}
+
+input {
+  width: 20%;
+  color: white;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5em;
+}
+
+input:focus {
+  outline: none;
+}
