@@ -66,7 +66,7 @@ void draw() {
 
   // Audio Data Mappings
   volume = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
-  trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + 
+  trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] +
   myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
   int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
@@ -79,7 +79,7 @@ void draw() {
     // Yellows and Reds
     fill(12.5 * sin((colorCounter + gradientVariance * 0.025 ) / 100.0) + 12.5, 1, 1);
     vertex(-width, -height);
-    
+
     // Yellows and Whites
     fill(12.5 * cos((colorCounter - gradientVariance * 0.025 ) / 200.0) + 37.5, 1, 1);
     vertex(width, -height);
@@ -87,7 +87,7 @@ void draw() {
     // Blues and Greens
     fill(12.5 * cos((colorCounter * 0.025 ) / 100.0) + 62.5, 1, 1);
     vertex(width, height);
-    
+
     // Reds + Purples
     fill(12.5 * sin((colorCounter + gradientVariance * 0.25 ) / 200.0) + 87.5, 1, 1);
     vertex(-width, height);
@@ -160,7 +160,6 @@ void draw() {
     }
 
   popMatrix();
-  // --- End Nucleus -- //
 
   // ---------------
   // Visualizer
@@ -187,7 +186,7 @@ class Fragment {
   float px, py, offSet, radius;
   int dir;
   color col;
- 
+
   Fragment(float _x, float _y) {
     x = _x;
     y = _y;
@@ -195,18 +194,18 @@ class Fragment {
     radius = random(5, 10);
     dir = random(1) > .5 ? 1 : -1;
   }
- 
+
   void run() {
     update();
     showLines();
   }
- 
+
   void update() {
     float vari = map(sin(theta + offSet), -1, 1, -2, -2);
     px = map(sin(theta + offSet) , -1, 1, 0, width);
     py = y + sin(theta * dir) * radius * vari;
   }
- 
+
   void showLines() {
     for (int i = 0; i < fragments.length; i++) {
       float distance = dist(px, py, fragments[i].px, fragments[i].py);
@@ -218,7 +217,7 @@ class Fragment {
   }
 }
 
-// Arc 
+// Arc
 class Arc {
   int numTraits, lengthTrait, range, strokeWeight;
   float depart, spaceTrait;
@@ -236,7 +235,7 @@ class Arc {
     lengthTrait = (int)random(1, 50);
     strokeWeight = (int)random(1, 10);
     c = color(255);
-    
+
     traits = new Trait[numTraits];
     pos = new float[numTraits];
     posTarget = new float[numTraits];
@@ -297,7 +296,7 @@ void generateArcs() {
     }
   }
 }
- 
+
 float ease(float variable, float target, float easingVal) {
   float d = target - variable;
   if (abs(d) > 1) variable += d * easingVal;

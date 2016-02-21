@@ -30,7 +30,7 @@ float         rad              = 150;
 int           bsize;
 int           colorCounter     = 0;
 
-boolean       showVisualizer   = true;
+boolean       showVisualizer   = false;
 
 int           myAudioRange     = 11;
 int           myAudioMax       = 100;
@@ -41,13 +41,14 @@ float         myAudioIndexAmp  = myAudioIndex;
 float         myAudioIndexStep = 0.35f;
 float[]       myAudioData      = new float[myAudioRange];
 
-ArrayList<Arc> arcs = new ArrayList<Arc>();
-boolean rnd;
+int volume;
+int trebleWeight;
+
 
 int num = 150, frames = 480, edge = 40;
 Fragment[] fragments = new Fragment[num];
 float theta;
-int volume;
+ArrayList<Arc> arcs = new ArrayList<Arc>();
 
 // ************************************************************************************
 
@@ -84,7 +85,8 @@ public void draw() {
 
   // Audio Data Mappings
   volume = (int)map((in.mix.level() * 10), 0, 10, 0, 10);
-  int trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] + myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
+  trebleWeight = (int)map((myAudioData[3] + myAudioData[4] + myAudioData[5] +
+  myAudioData[6] + myAudioData[7] + myAudioData[8] + myAudioData[9]), 0, 255, 0, 255);
   int gradientVariance = (int)map(myAudioData[3], 0, 100, 0, 25);
 
   // ---------------
@@ -96,7 +98,7 @@ public void draw() {
     // Yellows and Reds
     fill(12.5f * sin((colorCounter + gradientVariance * 0.025f ) / 100.0f) + 12.5f, 1, 1);
     vertex(-width, -height);
-    
+
     // Yellows and Whites
     fill(12.5f * cos((colorCounter - gradientVariance * 0.025f ) / 200.0f) + 37.5f, 1, 1);
     vertex(width, -height);
@@ -104,7 +106,7 @@ public void draw() {
     // Blues and Greens
     fill(12.5f * cos((colorCounter * 0.025f ) / 100.0f) + 62.5f, 1, 1);
     vertex(width, height);
-    
+
     // Reds + Purples
     fill(12.5f * sin((colorCounter + gradientVariance * 0.25f ) / 200.0f) + 87.5f, 1, 1);
     vertex(-width, height);
@@ -123,7 +125,7 @@ public void draw() {
     fragments[i].py = myAudioData[6] * 5;
     fragments[i].run();
   }
-  theta += TWO_PI/frames * 0.5f;
+  theta += TWO_PI/frames * 0.35f;
 
   // ---------------
   // Nucleactor
@@ -143,13 +145,13 @@ public void draw() {
 
     // ---------------
     // Lines
-    stroke(-1, trebleWeight / 2); // stroke alpha mapped to treble volume
+    stroke(-1, trebleWeight); // stroke alpha mapped to treble volume
     for (int i = 0; i < bsize - 1; i += 5) {
       float x = (r) * cos(i * 2 * PI/bsize);
       float y = (r) * sin(i * 2 * PI/bsize);
-      float x2 = (r + in.left.get(i) * 20) * cos(i * 2 * PI/bsize);
-      float y2 = (r + in.left.get(i) * 20) * sin(i * 2 * PI/bsize);
-      strokeWeight(trebleWeight * 0.0125f);
+      float x2 = (r + in.left.get(i) * 40) * cos(i * 2 * PI/bsize);
+      float y2 = (r + in.left.get(i) * 40) * sin(i * 2 * PI/bsize);
+      strokeWeight(trebleWeight * 0.015f);
       line(x, y, x2, y2);
     }
 
@@ -187,6 +189,8 @@ public void draw() {
       // generateArcs();
     } else if (key == 'W') {
       showVisualizer = false;
+    } else if (key == 's') {
+      saveFrame();
     }
   }
 
@@ -202,7 +206,7 @@ class Fragment {
   float px, py, offSet, radius;
   int dir;
   int col;
- 
+
   Fragment(float _x, float _y) {
     x = _x;
     y = _y;
@@ -210,18 +214,18 @@ class Fragment {
     radius = random(5, 10);
     dir = random(1) > .5f ? 1 : -1;
   }
- 
+
   public void run() {
     update();
     showLines();
   }
- 
+
   public void update() {
     float vari = map(sin(theta + offSet), -1, 1, -2, -2);
     px = map(sin(theta + offSet) , -1, 1, 0, width);
     py = y + sin(theta * dir) * radius * vari;
   }
- 
+
   public void showLines() {
     for (int i = 0; i < fragments.length; i++) {
       float distance = dist(px, py, fragments[i].px, fragments[i].py);
@@ -233,7 +237,7 @@ class Fragment {
   }
 }
 
-// Arc 
+// Arc
 class Arc {
   int numTraits, lengthTrait, range, strokeWeight;
   float depart, spaceTrait;
@@ -251,7 +255,7 @@ class Arc {
     lengthTrait = (int)random(1, 50);
     strokeWeight = (int)random(1, 10);
     c = color(255);
-    
+
     traits = new Trait[numTraits];
     pos = new float[numTraits];
     posTarget = new float[numTraits];
@@ -293,7 +297,7 @@ class Trait {
 
   public void draw() {
     strokeWeight(strokeWeightTarget);
-    stroke(c, transp * volume * 0.5f);
+    stroke(c, trebleWeight * 0.45f);
     line(0, 0, lengthTrait, 0);
     lengthTrait = ease(lengthTrait, lengthTraitTarget, 0.1f);
     transp = ease(transp, transpTarget, 0.7f);
@@ -302,7 +306,6 @@ class Trait {
 
 // Arc Helpers
 public void generateArcs() {
-  rnd = true;
   arcs = new ArrayList<Arc>();
 
   int numArcs;
@@ -313,7 +316,7 @@ public void generateArcs() {
     }
   }
 }
- 
+
 public float ease(float variable, float target, float easingVal) {
   float d = target - variable;
   if (abs(d) > 1) variable += d * easingVal;

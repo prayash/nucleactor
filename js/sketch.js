@@ -1,40 +1,48 @@
-// Fragments
-var num = 50, frames = 300, edge = 40;
+// * CONSTANTS
+var CLIENT_ID       = "188bdc288184c969c82a24af4145c999";
+var TRACK_URL       = "https://soundcloud.com/effulgence/an-arrival";
+var BUFFER_SIZE     = 1024;
+
+var num             = 100
+var frames          = 480;
+var theta           = 0;
+
+var colorCounter    = 0;
+var rad             = 150;
+var r               = 200;
+
+var streamUrl;
+var theTrack;
+var volume, subWeight, trebleWeight;
+
 var fragments = [];
-var theta = 0;
-
-var colorCounter = 0;
-var rad = 150;
-var r = 150;
-
-// Synthesis
-var osc;
-var envelope;
-var amplitude;
-var reverb;
-var octave = 1;
-var notes = [ 50, 54, 57, 61, 64, 66, 69 , 73, 76];
+var arcs = [];
 
 // ************************************************************************************
+// * Preload
+
+function preload() {
+  SC.initialize({ client_id: CLIENT_ID });
+  SC.resolve(TRACK_URL).then(afterLoad).catch(function(error) { console.log(error); });
+}
+
+function afterLoad(track) {
+  streamUrl = track.stream_url + '?client_id=' + CLIENT_ID;
+  theTrack = loadSound(streamUrl, function(loadedTrack) {
+    // theTrack.loop();
+    theTrack.play();
+  });
+}
+
+// ************************************************************************************
+// * Setup
 
 function setup() {
   var myCanvas = createCanvas(windowWidth, windowHeight);
   myCanvas.parent("canvas");
-  frameRate(30);
-  if (windowWidth > 960) {
-    num = 200;
-  }
 
-  osc = new p5.SinOsc();
-  osc.start();
-  osc.amp(0);
-  envelope = new p5.Env(0.5, 0.25, 0.5, 0.5);
-
-  reverb = new p5.Reverb();
-  reverb.process(osc, 5, 5);
-
+  fft = new p5.FFT(1.0, BUFFER_SIZE);
   amplitude = new p5.Amplitude();
-  fft = new p5.FFT();
 
   // Fragments
   for (var i = 0; i < num; i++) {
@@ -44,214 +52,103 @@ function setup() {
     fragments[i].px = random(windowWidth);
     fragments[i].py = random(windowHeight);
   }
+
+  generateArcs();
 }
 
 // ************************************************************************************
+// * Draw
 
 function draw() {
-  
-  // Analysis Parameters
+  // * Analysis Parameters
   var spectrum = fft.analyze();
   var waveform = fft.waveform();
-  var volume = map((amplitude.getLevel() * 255), 0, 255, 0, 255);
+  volume = map((amplitude.getLevel() * 255), 0, 255, 0, 10);
+  trebleWeight = fft.getEnergy("treble");
+  console.log(trebleWeight);
 
-  // Derived Parameters
-  var gradientVariance = map(volume, 0, 10, 0, 1);
-  
-  // *********************************
-  // Background
+  // * Derived Parameters
+  var gradientVariance = map(volume, 0, 10, 0, 25);
+
+  // ***********************************************
+  // * Background
   fill(0);
   colorMode(HSB, 100, 1, 1);
   noStroke();
   beginShape();
-
     // Yellows and Reds
-    fill(12.5 * sin((colorCounter + gradientVariance * 0.025) / 100.0) + 12.5, 0.75, 1);
+    fill(12.5 * sin((colorCounter + gradientVariance * 0.025 ) / 100.0) + 12.5, 1, 1);
     vertex(-width, -height);
-    
+
     // Yellows and Whites
-    fill(12.5 * cos((colorCounter - gradientVariance * 0.025 ) / 200.0) + 37.5, 0.5, 1);
+    fill(12.5 * cos((colorCounter - gradientVariance * 0.025 ) / 200.0) + 37.5, 1, 1);
     vertex(width, -height);
 
     // Blues and Greens
-    fill(12.5 * cos((colorCounter * 0.025 ) / 100.0) + 62.5, 0.75, 1);
+    fill(12.5 * cos((colorCounter * 0.025 ) / 100.0) + 62.5, 1, 1);
     vertex(width, height);
-    
+
     // Reds + Purples
-    fill(12.5 * sin((colorCounter + gradientVariance * 0.25 ) / 200.0) + 87.5, 0.75, 1);
+    fill(12.5 * sin((colorCounter + gradientVariance * 0.25 ) / 200.0) + 87.5, 1, 1);
     vertex(-width, height);
 
   endShape();
   colorCounter += gradientVariance;
+  // ***********************************************
 
-  // *********************************
+  // * Fragments
+  stroke(255, volume / 2);
+  strokeWeight(volume);
+  for (var i = 0; i < fragments.length; i++) fragments[i].run();
+  theta += TWO_PI/frames * 0.35;
 
-  // ---------------
-  // Nucleactor
+  // - Nucleactor
   push();
-    // ---------------
-    // Nucleus
     colorMode(RGB);
     translate(windowWidth/2, windowHeight/2);
+
+    // * Epicenter
+    noFill();
     noStroke();
+    fill(255, 150);
+    for (var i = 0; i < waveform.length - 1; i += 5) ellipse(0, 0, 5 * rad / i + volume * 25, 5 * rad / i + volume * 25);
 
-    // Concentrics
-    fill(255, 255, 255, 150);
-    for (var i = 0; i < 1024 - 1; i += 5) {
-      ellipse(0, 0, 5 * rad / i, 5 * rad / i);
-    }
-
-    // ---------------
-    // Waveform
-    stroke(255, volume * 4); // stroke alpha mapped to volume
-    for (var i = 0; i < waveform.length - 1; i += 8) {
+    // * Waveform
+    stroke(255, volume * 20);
+    for (var i = 0; i < waveform.length - 1; i += 5) {
       var x = (r) * cos(i * 2 * PI/waveform.length);
       var y = (r) * sin(i * 2 * PI/waveform.length);
       var x2 = (r + waveform[i] * 60) * cos(i * 2 * PI/waveform.length);
       var y2 = (r + waveform[i] * 60) * sin(i * 2 * PI/waveform.length);
-      strokeWeight(5);
+      strokeWeight(volume * 30);
       strokeCap(SQUARE);
       line(x, y, x2, y2);
     }
 
-    // ---------------
-    // Points + Connectors
+    // * Points
     beginShape();
       noFill();
       for (var i = 0; i < waveform.length; i += 32) {
-        var x2 = (r + waveform[i] * 30) * cos(i * 2 * PI / waveform.length);
-        var y2 = (r + waveform[i] * 30) * sin(i * 2 * PI / waveform.length);
-        var x2 = r * cos(i * 2 * PI / 1024);
-        var y2 = r * sin(i * 2 * PI / 1024);
+        var x2 = (r + waveform[i] * 50) * cos(i * 2 * PI / waveform.length);
+        var y2 = (r + waveform[i] * -50) * sin(i * 2 * PI / waveform.length);
         push();
-          stroke(255, 150);
-          strokeWeight(7.5);
+          stroke(255, 100);
+          strokeWeight(5);
           if (i < waveform.length) point(x2, y2);
         pop();
       }
     endShape();
+
+    // * Concentrism
+    stroke(255, volume * 35);
+    for (var i = 0; i < arcs.length; i++) arcs[i].draw();
+
   pop();
-  // --- End Nucleus -- //
-
-  // ---------------
-  // Fragments
-  colorMode(RGB); // Reset colorMode
-  noFill();
-  stroke(255, volume * 2);
-  strokeWeight(2);
-  for (var i = 0; i < fragments.length; i++) {
-    fragments[i].run();
-  }
-  theta += TWO_PI/frames * (volume * 0.0025); // speed
-
-  // This needs to be a class..
-  // var xPos = floor(map(touchX, 0, windowWidth / notes.length, 0, windowWidth)); 
-  // rect(touchX, 0, windowWidth / notes.length, windowHeight);
-
-
-}
-
-// function touchMoved() {
-  // line(touchX, touchY, ptouchX, ptouchY);
-//   var key = floor(map(touchX, 0, windowWidth, 0, notes.length));
-//   playNote(notes[key]);
-// }
-
-// function touchStarted() {
-//   var key = floor(map(touchX, 0, windowWidth, 0, notes.length));
-//   playNote(notes[key]);
-// }
-
-// function touchEnded() {
-//   osc.fade(0, 0.5);
-// }
-
-function keyPressed() {
-  console.log(keyCode);
-  switch(keyCode) {
-    case 65:
-      playNote(notes[0]);
-      break;
-    case 83:
-      playNote(notes[1]);
-      break;
-    case 68:
-      playNote(notes[2]);
-      break;
-    case 70:
-      playNote(notes[3]);
-      break;
-    case 71:
-      playNote(notes[4]);
-      break;
-    case 72:
-      playNote(notes[5]);
-      break;
-    case 74:
-      playNote(notes[6]);
-      break;
-    case 75:
-      playNote(notes[7]);
-      break;
-    case 76:
-      playNote(notes[8]);
-      break;
-  }
-}
-
-function keyReleased() {
-  console.log(keyCode);
-  switch(keyCode) {
-    case 65:
-      playNote(notes[0]);
-      break;
-    case 83:
-      playNote(notes[1]);
-      break;
-    case 68:
-      playNote(notes[2]);
-      break;
-    case 70:
-      playNote(notes[3]);
-      break;
-    case 71:
-      playNote(notes[4]);
-      break;
-    case 72:
-      playNote(notes[5]);
-      break;
-    case 74:
-      playNote(notes[6]);
-      break;
-    case 75:
-      playNote(notes[7]);
-      break;
-    case 76:
-      playNote(notes[8]);
-      break;
-    osc.fade(0,0.5);
-  }
-}
-
-function keyReleased() {
-  // osc.fade(0,0.5);
-}
-
-// A function to play a note
-function playNote(note) {
-  osc.freq(midiToFreq(note));
-  // osc.fade(0.5, 0.2);
-  envelope.play(osc);
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
 }
 
 // ************************************************************************************
-// Classes
 
-// Fragment
+// * Fragment
 function Fragment(_x, _y) {
   var x, y;
   var px, py, offSet, radius;
@@ -262,49 +159,113 @@ function Fragment(_x, _y) {
   this.y = _y;
   offSet = random(TWO_PI);
   radius = random(5, 10);
-  dir = random(1) > .5 ? 1 : -1;
- 
+  dir = random(1) > 0.5 ? 1 : -1;
+
   this.run = function() {
     this.update();
     this.display();
   };
- 
+
   this.update = function() {
     var vari = map(sin(theta + offSet), -1, 1, -2, -2);
     px = map(sin(theta + offSet) , -1, 1, 0, width);
     py = this.y + sin(theta * dir) * radius * vari;
   }
- 
+
   this.display = function() {
     for (var i = 0; i < fragments.length; i++) {
       var distance = dist(px, py, fragments[i].px, fragments[i].py);
-
-      if (distance > 0 && distance < 75) {
-        strokeCap(ROUND);
+      if (distance > 25 && distance < 110) {
         line(px, py, fragments[i].px, fragments[i].py);
-        // ellipse(px, py, 5, 5);
-        // ellipse(fragments[i].px, fragments[i].py, 10, 10);
       }
     }
   }
 }
 
-// Pulse
-function pulse(touchX) {
-  this.x = touchX;
-  this.lifespan = 255;
+// * Arc
+function Arc(_range) {
+  var numTraits, lengthTrait, range, strokeWeight, depart, spaceTrait, c;
+  var traits = [], pos = [], posTarget = [];
 
-  this.run = function() {
-    this.update();
-    this.display();
+  this.range = _range;
+  numTraits = random(10, 50);
+  spaceTrait = random(2, 5);
+  depart = random(360);
+  lengthTrait = random(1, 50);
+  strokeWeight = random(1, 10);
+  c = 255;
+
+  traits = [numTraits];
+  pos = [numTraits];
+  posTarget = [numTraits];
+
+  for(var i = 0; i < numTraits; i++) {
+    traits[i] = new Trait(i, strokeWeight, lengthTrait, c);
+    pos[i] = 0;
+    posTarget[i] = depart + i * spaceTrait;
   }
 
-  this.update = function () {
-    this.lifespan--;
-  }
+  this.draw = function() {
+    for(var i = 0; i < numTraits; i++) {
+      push();
+        rotate(radians(pos[i]) + (frameCount * 0.025));
+        translate(300 - (this.range * 30 / volume), 0);
+        traits[i].draw();
+      pop();
 
-  this.display = function() {
-    fill(255);
-    rect(this.x, 0, 50, windowHeight);
+      pos[i] = posTarget[i];
+      if ((i + 1) * spaceTrait > 335) i = numTraits;
+    }
   }
+}
+
+// * Arc Traits
+function Trait(_id, _strokeWeight, _lengthTrait, _c) {
+  var id, strokeWeightTarget, lengthTraitTarget, transpTarget;
+  var lengthTrait = 0, transp;
+  var c;
+
+  this.id = _id;
+  this.strokeWeightTarget = _strokeWeight;
+  this.c = _c;
+  this.lengthTraitTarget = _lengthTrait;
+  transpTarget = 55;
+
+  this.draw = function() {
+    strokeWeight(this.strokeWeightTarget);
+    stroke(this.c, this.volume * 30);
+    line(0, 0, lengthTrait, 0);
+    lengthTrait = ease(lengthTrait, this.lengthTraitTarget, 0.1);
+    transp = ease(transp, transpTarget, 0.7);
+  }
+}
+
+// * Arc Helpers
+var generateArcs = function() {
+  arcs = [];
+
+  var numArcs;
+  for (var k = 0; k < 2; k++) {
+    numArcs = Math.floor(random(3, 9));
+    for (var j = 0; j < numArcs; j++) {
+      arcs.push(new Arc(j));
+    }
+  }
+}
+
+var ease = function(variable, target, easingVal) {
+  var d = target - variable;
+  if (abs(d) > 1) variable += d * easingVal;
+  return variable;
+}
+
+// ************************************************************************************
+
+function mousePressed() {
+  var fs = fullScreen();
+  fullScreen(!fs);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
