@@ -23,17 +23,20 @@ var fragments = [], arcs = [];
 // * Preload
 
 function preload() {
+  showLoading();
   SC.initialize({ client_id: CLIENT_ID });
   SC.resolve(TRACK_URL).then(afterLoad).catch(function(error) { console.log(error); });
 }
 
 function afterLoad(track) {
   streamUrl = track.stream_url + '?client_id=' + CLIENT_ID;
-  theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); });
+  theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); doneLoading(); });
 }
 
 function loadTrack(url) {
   theTrack.stop();
+  showLoading();
+
   var trackUrl = input.value();
   SC.initialize({ client_id: CLIENT_ID });
   SC.resolve(trackUrl).then(afterLoad).catch(function(error) { console.log(error); });
@@ -272,13 +275,20 @@ var ease = function(variable, target, easingVal) {
 
 // ************************************************************************************
 
-function mousePressed() {
-  var fs = fullScreen();
-  fullScreen(!fs);
-}
-
 function windowResized() {
   resizeCanvas(displayWidth, displayHeight);
+}
+
+function showLoading() {
+  var element = document.getElementById('loading');
+  var style = element.style;
+  style.opacity = "1";
+}
+
+function doneLoading() {
+  var element = document.getElementById('loading');
+  var style = element.style;
+  style.opacity = "0";
 }
 
 function keyPressed(e) {
@@ -287,6 +297,10 @@ function keyPressed(e) {
       e.preventDefault();
       toggleControls();
       break;
+    case 70:
+      e.preventDefault();
+      var fs = fullScreen();
+      fullScreen(!fs);
   }
 }
 
