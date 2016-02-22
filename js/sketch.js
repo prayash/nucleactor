@@ -185,7 +185,7 @@ function Fragment(_x, _y) {
   this.display = function() {
     for (var i = 0; i < fragments.length; i++) {
       var distance = dist(px, py, fragments[i].px, fragments[i].py);
-      if (distance > 25 && distance < 110) {
+      if (distance > 25 && distance < displayWidth / 10) {
         line(px, py, fragments[i].px, fragments[i].py);
         if (random(1) > 0.8 && volume < 2) {
           fill(255, volume / 1.5);
