@@ -15,9 +15,10 @@ var r               = 200;
 
 var streamUrl, theTrack, controls;
 var volume, subWeight, trebleWeight;
-var button, input;
+var hud, button, input, text, trackInfo;
 
 var fragments = [], arcs = [];
+var loadingBar = new Mprogress({ template: 3, parent: '#canvas', ease: 2 });
 
 // ************************************************************************************
 // * Preload
@@ -29,6 +30,12 @@ function preload() {
 }
 
 function afterLoad(track) {
+  trackInfo.remove();
+  trackInfo = createP("Now playing: " + track.title + " by " + track.user.username);
+  trackInfo.parent('hud');
+  trackInfo.position(10, 55);
+  trackInfo.addClass('blurb');
+
   streamUrl = track.stream_url + '?client_id=' + CLIENT_ID;
   theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); doneLoading(); });
 }
@@ -37,7 +44,7 @@ function loadTrack(url) {
   theTrack.stop();
   showLoading();
 
-  var trackUrl = input.value();
+  var trackUrl = input.value;
   SC.initialize({ client_id: CLIENT_ID });
   SC.resolve(trackUrl).then(afterLoad).catch(function(error) { console.log(error); });
 }
@@ -283,12 +290,14 @@ function showLoading() {
   var element = document.getElementById('loading');
   var style = element.style;
   style.opacity = "1";
+  loadingBar.start();
 }
 
 function doneLoading() {
   var element = document.getElementById('loading');
   var style = element.style;
   style.opacity = "0";
+  loadingBar.end();
 }
 
 function keyPressed(e) {
@@ -306,22 +315,24 @@ function keyPressed(e) {
 
 function createControls() {
   controls = true;
-  input = createInput("https://soundcloud.com/madeon/pay-no-mind");
-  input.position(10, 10);
+  hud = document.getElementById('hud');
+  input = document.getElementById('trackInput');
+  input.value = "https://soundcloud.com/madeon/pay-no-mind";
 
-  button = createButton('GO');
-  button.position(280, 10);
-  button.mousePressed(loadTrack);
+  button = document.getElementById('goButton');
+
+  text = createP('<strong>Nucleactor</strong> is an audio visualizer made by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).');
+  text.parent('hud');
+  text.position(10, 25);
+  text.addClass('blurb');
 }
 
 function toggleControls() {
   if (controls) {
     controls = false;
-    input.style('opacity', '0');
-    button.style('opacity', '0');
+    hud.className = " "; hud.className += " hide";
   } else {
     controls = true;
-    input.style('opacity', '1');
-    button.style('opacity', '1');
+    hud.className = " "; hud.className += " show";
   }
 }

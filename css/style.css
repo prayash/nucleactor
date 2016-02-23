@@ -3,7 +3,6 @@ button {
   color: white;
   background: rgba(255, 255, 255, 0.2);
   padding: 0.5em;
-  transition: opacity 0.5s linear;
 }
 
 input {
@@ -12,11 +11,14 @@ input {
   border: none;
   background: rgba(255, 255, 255, 0.2);
   padding: 0.5em;
-  transition: opacity 0.5s linear;
 }
 
 input:focus, button:focus {
   outline: none;
+}
+
+a {
+  color: white;
 }
 
 #loading {
@@ -26,4 +28,30 @@ input:focus, button:focus {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   opacity: 0;
+}
+
+#hud {
+  display: block;
+  width: 325px;
+  height: 100px;
+  background: rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 10px;
+  font-family: Helvetica;
+  font-weight: 300;
+  font-size: 13px;
+  transition: opacity 0.5s linear;
+}
+
+.blurb {
+  background: rgba(0, 0, 0, 0);
+  color: white;
+}
+
+.hide {
+  opacity: 0;
+}
+
+.show {
+  opacity: 1;
 }

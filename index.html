@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta property="og:title" content="Nucleactor">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-    <meta name="author" content="Prayash Thapa">
+    <meta name="author" content="Effulgence // Prayash Thapa">
     <meta name="description" content="Audio-reactive visualizer created by Prayash Thapa.">
     <meta property="og:description" content="Audio-reactive visualizer created by Prayash Thapa.">
   </head>
@@ -13,8 +13,16 @@
   <script type="text/javascript" src="lib/p5.dom.js"></script>
   <script type="text/javascript" src="lib/p5.sound.min.js"></script>
   <script type="text/javascript" src="lib/sdk-3.0.0.js"></script>
+  <script type="text/javascript" src='lib/mprogress.min.js'></script>
   <script type="text/javascript" src="js/sketch.js"></script>
+  <link rel='stylesheet' href='css/mprogress.min.css'/>
   <link rel="stylesheet" href="css/style.css">
-  <body id="canvas" style="margin: 0 !important; padding: 0 !important;"></body>
+
   <div id="loading"></div>
+  <body id="canvas" style="margin: 0 !important; padding: 0 !important;"></body>
+
+  <div id="hud">
+    <input id="trackInput" type="text" style="position: absolute; left: 10px; top: 10px;">
+    <button id="goButton" value="undefined" onclick="loadTrack()" style="position: absolute; left: 280px; top: 10px;">GO</button>
+  </div>
 </html>
