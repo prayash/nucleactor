@@ -30,19 +30,14 @@ function preload() {
 }
 
 function afterLoad(track) {
-  trackInfo.remove();
-  trackInfo = createP("Now playing: " + track.title + " by " + track.user.username);
-  trackInfo.parent('hud');
-  trackInfo.position(10, 55);
-  trackInfo.addClass('blurb');
-
   streamUrl = track.stream_url + '?client_id=' + CLIENT_ID;
-  theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); doneLoading(); });
+  theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); doneLoading(); displayInfo(track); });
 }
 
 function loadTrack(url) {
   theTrack.stop();
   showLoading();
+  trackInfo.remove();
 
   var trackUrl = input.value;
   SC.initialize({ client_id: CLIENT_ID });
@@ -286,6 +281,21 @@ function windowResized() {
   resizeCanvas(displayWidth, displayHeight);
 }
 
+function displayInfo(track) {
+  trackInfo = createP("Now playing... <br>" + '<strong>' + track.title + " by " + track.user.username + '</strong>');
+  trackInfo.parent('hud');
+  // trackInfo.position(10, 55);
+  trackInfo.addClass('nowPlaying');
+  trackInfo.style('font-size', '2em');
+
+  text = createP('<strong>Nucleactor</strong> is an audio visualizer made by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).');
+  text.parent('hud');
+  text.addClass('nowPlaying');
+  text.style('position', 'fixed');
+  text.style('bottom', '20px !important');
+  // text.addClass('blurb');
+}
+
 function showLoading() {
   var element = document.getElementById('loading');
   var style = element.style;
@@ -318,13 +328,7 @@ function createControls() {
   hud = document.getElementById('hud');
   input = document.getElementById('trackInput');
   input.value = "https://soundcloud.com/madeon/pay-no-mind";
-
   button = document.getElementById('goButton');
-
-  text = createP('<strong>Nucleactor</strong> is an audio visualizer made by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).');
-  text.parent('hud');
-  text.position(10, 25);
-  text.addClass('blurb');
 }
 
 function toggleControls() {
