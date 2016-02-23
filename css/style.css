@@ -31,12 +31,10 @@ a {
 }
 
 #hud {
-  display: block;
   width: 325px;
-  /*height: 125px;*/
-  background: rgba(0, 0, 0, 0.2);
-  position: fixed;
-  top: 10px;
+  /*background: rgba(0, 0, 0, 0.2);*/
+  /*position: fixed;*/
+  /*bottom: 70px;*/
   font-family: Helvetica;
   font-weight: 300;
   font-size: 13px;

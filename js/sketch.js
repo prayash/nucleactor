@@ -284,16 +284,14 @@ function windowResized() {
 function displayInfo(track) {
   trackInfo = createP("Now playing... <br>" + '<strong>' + track.title + " by " + track.user.username + '</strong>');
   trackInfo.parent('hud');
-  // trackInfo.position(10, 55);
   trackInfo.addClass('nowPlaying');
   trackInfo.style('font-size', '2em');
 
   text = createP('<strong>Nucleactor</strong> is an audio visualizer made by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).');
   text.parent('hud');
   text.addClass('nowPlaying');
-  text.style('position', 'fixed');
   text.style('bottom', '20px !important');
-  // text.addClass('blurb');
+  text.style('font-size', '1em');
 }
 
 function showLoading() {
