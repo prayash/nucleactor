@@ -1,0 +1,26 @@
+{
+  "name": "nucleactor",
+  "version": "1.0.0",
+  "description": "Nucleactor is an audio visualizer made by Prayash Thapa (effulgence.io).",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prayashthapa/Nucleactor.git"
+  },
+  "author": "Prayash Thapa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prayashthapa/Nucleactor/issues"
+  },
+  "homepage": "https://github.com/prayashthapa/Nucleactor#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cssnano": "^2.1.1",
+    "gulp-if": "^2.0.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-useref": "^3.0.7"
+  }
+}
