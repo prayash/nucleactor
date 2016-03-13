@@ -317,10 +317,7 @@ function doneLoading() {
 
 function mousePressed() {
   var fs = fullScreen();
-  var FS = fullscreen();
-  try fullScreen(!fs);
-  catch fullScreen(!FS)
-
+  fullScreen(!fs);
 }
 
 function createControls() {
