@@ -291,6 +291,7 @@ function displayInfo(track) {
   trackInfo.parent('hud');
   trackInfo.addClass('nowPlaying');
   trackInfo.style('font-size', '2em');
+  trackInfo.style('padding-bottom', '0.75em');
 }
 
 function showLoading() {
@@ -321,8 +322,10 @@ function createControls() {
   input = document.getElementById('trackInput');
   input.value = "https://soundcloud.com/madeon/pay-no-mind";
   button = document.getElementById('goButton');
+  guideText = createP('FULLSCREEN: Click Anywhere.');
+  compatibilityText = createP('Chrome / Firefox recommended!');
 
-  text = createP('<strong>Nucleactor</strong> is an audio visualizer made by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).');
+  text = createP('<strong>Nucleactor</strong> is an audio visualizer created by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).<br>Chrome / Firefox recommended! Click anywhere for FULLSCREEN.');
   text.parent('hud');
   text.addClass('nowPlaying');
   text.style('bottom', '20px !important');
