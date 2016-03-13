@@ -48,7 +48,7 @@ function loadTrack(url) {
 // * Setup
 
 function setup() {
-  // frameRate(60);
+  frameRate(24);
   var myCanvas = createCanvas(displayWidth, displayHeight);
   myCanvas.parent('canvas');
   createControls();
@@ -72,7 +72,6 @@ function setup() {
 // * Draw
 
 function draw() {
-  console.log(frameRate());
   // * Analysis Parameters
   spectrum = fft.analyze();
   waveform = fft.waveform();
