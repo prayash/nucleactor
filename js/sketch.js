@@ -75,8 +75,8 @@ function draw() {
   var spectrum = fft.analyze();
   var waveform = fft.waveform();
   volume = map((amplitude.getLevel() * 255), 0, 255, 0, 10);
-  trebleWeight = fft.getEnergy("treble");
-  // console.log(trebleWeight);
+  trebleWeight = fft.getEnergy('treble');
+  console.log(trebleWeight);
 
   // * Derived Parameters
   var gradientVariance = map(volume, 0, 25, 0, 50);
@@ -303,8 +303,8 @@ function doneLoading() {
 }
 
 function mousePressed() {
-  var fs = fullScreen();
-  fullScreen(!fs);
+  var fs = fullscreen();
+  fullscreen(!fs);
   toggleControls();
 }
 
