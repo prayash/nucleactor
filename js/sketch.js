@@ -302,22 +302,10 @@ function doneLoading() {
   loadingBar.end();
 }
 
-// function keyPressed(e) {
-//   switch(keyCode) {
-//     case 32:
-//       e.preventDefault();
-//
-//       break;
-//     case 70:
-//       e.preventDefault();
-//       var fs = fullScreen();
-//       fullScreen(!fs);
-//   }
-// }
-
 function mousePressed() {
   var fs = fullScreen();
   fullScreen(!fs);
+  toggleControls();
 }
 
 function createControls() {
