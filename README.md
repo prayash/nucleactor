@@ -1,4 +1,4 @@
 # Nucleactor 
 ***
 
-Audio-reactive musical toy.
+Audio visualizer. [Processing / p5.js]
