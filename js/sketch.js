@@ -5,7 +5,7 @@ var CLIENT_ID       = "188bdc288184c969c82a24af4145c999";
 var TRACK_URL       = "https://soundcloud.com/effulgence/distance-3";
 var BUFFER_SIZE     = 1024;
 
-var num             = 100
+var num             = 90
 var frames          = 480;
 var theta           = 0;
 
@@ -14,7 +14,7 @@ var rad             = 150;
 var r               = 200;
 
 var streamUrl, theTrack, controls;
-var volume, subWeight, trebleWeight;
+var spectrum, waveform, volume, lows, mids, highs;
 var hud, button, input, text, trackInfo;
 
 var fragments = [], arcs = [];
@@ -52,7 +52,7 @@ function setup() {
   myCanvas.parent('canvas');
   createControls();
 
-  fft = new p5.FFT(1.0, BUFFER_SIZE);
+  fft = new p5.FFT();
   amplitude = new p5.Amplitude();
 
   // Fragments
@@ -72,11 +72,14 @@ function setup() {
 
 function draw() {
   // * Analysis Parameters
-  var spectrum = fft.analyze();
-  var waveform = fft.waveform();
+  spectrum = fft.analyze();
+  waveform = fft.waveform();
+
   volume = map((amplitude.getLevel() * 255), 0, 255, 0, 10);
-  trebleWeight = fft.getEnergy('treble');
-  console.log(trebleWeight);
+  lows = map(fft.getEnergy('bass'), 0, 255, 0, 10);
+  mids = map(fft.getEnergy('mid'), 0, 255, 0, 10);
+  highs = map(fft.getEnergy('treble'), 0, 255, 0, 10);
+  // console.log("Lows: %i " + "Mids: %i " + "Highs: %i ", lows, mids, highs);
 
   // * Derived Parameters
   var gradientVariance = map(volume, 0, 25, 0, 50);
@@ -109,7 +112,7 @@ function draw() {
 
   // * Fragments
   stroke(255, volume / 2);
-  strokeWeight(volume);
+  strokeWeight(volume / 1.5);
   for (var i = 0; i < fragments.length; i++) fragments[i].run();
   theta += TWO_PI/frames * 0.35 * (volume / 2);
 
@@ -153,6 +156,7 @@ function draw() {
     // * Concentrism
     stroke(255, volume * 35);
     for (var i = 0; i < arcs.length; i++) arcs[i].draw();
+    if (volume < 1 && random(1) > 0.8) generateArcs();
 
   pop();
 }
@@ -190,6 +194,7 @@ function Fragment(_x, _y) {
       if (distance > 25 && distance < displayWidth / 10) {
         line(px, py, fragments[i].px, fragments[i].py);
         if (random(1) > 0.8 && volume < 2) {
+          generateArcs();
           fill(255, volume / 1.5);
           ellipse(px, py, randRadius, randRadius);
         }
@@ -303,9 +308,11 @@ function doneLoading() {
 }
 
 function mousePressed() {
-  var fs = fullscreen();
-  fullscreen(!fs);
-  toggleControls();
+  if (mouseY > 50 && mouseY < windowHeight - 100) {
+    var fs = fullscreen();
+    fullscreen(!fs);
+    toggleControls();
+  }
 }
 
 function createControls() {
