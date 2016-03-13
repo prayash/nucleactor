@@ -2,7 +2,7 @@
 // ************************************************************************************
 
 var CLIENT_ID       = "188bdc288184c969c82a24af4145c999";
-var TRACK_URL       = "http://soundcloud.com/effulgence/transience";
+var TRACK_URL       = "https://soundcloud.com/effulgence/distance-3";
 var BUFFER_SIZE     = 1024;
 
 var num             = 100
@@ -302,17 +302,25 @@ function doneLoading() {
   loadingBar.end();
 }
 
-function keyPressed(e) {
-  switch(keyCode) {
-    case 32:
-      e.preventDefault();
-      toggleControls();
-      break;
-    case 70:
-      e.preventDefault();
-      var fs = fullScreen();
-      fullScreen(!fs);
-  }
+// function keyPressed(e) {
+//   switch(keyCode) {
+//     case 32:
+//       e.preventDefault();
+//
+//       break;
+//     case 70:
+//       e.preventDefault();
+//       var fs = fullScreen();
+//       fullScreen(!fs);
+//   }
+// }
+
+function mousePressed() {
+  var fs = fullScreen();
+  var FS = fullscreen();
+  try fullScreen(!fs);
+  catch fullScreen(!FS)
+
 }
 
 function createControls() {
