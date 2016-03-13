@@ -157,7 +157,7 @@ function draw() {
     // * Concentrism
     stroke(255, volume * 35);
     for (var i = 0; i < arcs.length; i++) arcs[i].draw();
-    if (volume < 1 && random(1) > 0.8) generateArcs();
+    if (volume < 0.5 && random(1) > 0.8) generateArcs();
 
   pop();
 }
@@ -195,7 +195,6 @@ function Fragment(_x, _y) {
       if (distance > 25 && distance < displayWidth / 10) {
         line(px, py, fragments[i].px, fragments[i].py);
         if (random(1) > 0.8 && volume < 2) {
-          generateArcs();
           fill(255, volume / 1.5);
           ellipse(px, py, randRadius, randRadius);
         }
