@@ -322,8 +322,6 @@ function createControls() {
   input = document.getElementById('trackInput');
   input.value = "https://soundcloud.com/madeon/pay-no-mind";
   button = document.getElementById('goButton');
-  guideText = createP('FULLSCREEN: Click Anywhere.');
-  compatibilityText = createP('Chrome / Firefox recommended!');
 
   text = createP('<strong>Nucleactor</strong> is an audio visualizer created by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).<br>Chrome / Firefox recommended! Click anywhere for FULLSCREEN.');
   text.parent('hud');
