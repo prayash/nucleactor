@@ -339,3 +339,7 @@ function toggleControls() {
     hud.className = " "; hud.className += " show";
   }
 }
+
+function touchMoved() {
+  return false;
+}
