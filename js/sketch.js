@@ -18,7 +18,7 @@ var spectrum, waveform, volume, lows, mids, highs;
 var hud, button, input, text, trackInfo;
 
 var fragments = [], arcs = [];
-var loadingBar = new Mprogress({ template: 3, parent: '#canvas', ease: 2 });
+var loadingBar = new Mprogress({ template: 3, parent: '#canvas', speed: 0.25, easing: 0.25 });
 
 // ************************************************************************************
 // * Preload
@@ -41,7 +41,10 @@ function loadTrack(url) {
 
   var trackUrl = input.value;
   SC.initialize({ client_id: CLIENT_ID });
-  SC.resolve(trackUrl).then(afterLoad).catch(function(error) { console.log(error); });
+  SC.resolve(trackUrl).then(afterLoad).catch(function(error) {
+    console.log(error);
+    if (error.status === 403) alert("Error: " + "The owner of this track doesn't allow 3rd party streaming. Try another track!");
+  });
 }
 
 // ************************************************************************************
@@ -92,7 +95,7 @@ function draw() {
   noStroke();
   beginShape();
     // Yellows and Reds
-    fill(12.5 * sin((colorCounter + gradientVariance * 0.25 ) / 100.0) + 12.5, 1, 1);
+    fill(12.5 * sin((colorCounter + (highs * 5) + gradientVariance * 0.25 ) / 100.0) + 12.5, 1, 1);
     vertex(-width, -height);
 
     // Yellows and Whites
@@ -100,11 +103,11 @@ function draw() {
     vertex(width, -height);
 
     // Blues and Greens
-    fill(12.5 * cos((colorCounter * 0.025 ) / 100.0) + 62.5, 1, 1);
+    fill(12.5 * cos((colorCounter * (lows * 5) + 0.025 ) / 100.0) + 62.5, 1, 1);
     vertex(width, height);
 
     // Reds + Purples
-    fill(12.5 * sin((colorCounter + gradientVariance * 0.25 ) / 200.0) + 87.5, 1, 1);
+    fill(12.5 * sin((colorCounter + (mids * 5) + gradientVariance * 0.25 ) / 200.0) + 87.5, 1, 1);
     vertex(-width, height);
 
   endShape();
@@ -129,7 +132,7 @@ function draw() {
     for (var i = 0; i < waveform.length - 1; i += 5) ellipse(0, 0, 5 * rad / i + volume * 25, 5 * rad / i + volume * 25);
 
     // * Waveform
-    stroke(255, volume * 20);
+    stroke(255, (volume * 20 + lows * 5));
     for (var i = 0; i < waveform.length - 1; i += 16) {
       var x = (r) * sin(i * 2 * PI/waveform.length);
       var y = (r) * cos(i * 2 * PI/waveform.length);
@@ -242,9 +245,8 @@ function Arc(_range) {
 
 // * Arc Traits
 function Trait(_id, _strokeWeight, _lengthTrait, _c) {
-  var id, strokeWeightTarget, lengthTraitTarget, transpTarget;
-  var lengthTrait = 0, transp;
-  var c;
+  var strokeWeightTarget, lengthTraitTarget, transpTarget;
+  var lengthTrait = 0, transp; var c;
 
   this.id = _id;
   this.strokeWeightTarget = _strokeWeight;
@@ -255,6 +257,7 @@ function Trait(_id, _strokeWeight, _lengthTrait, _c) {
   this.draw = function() {
     strokeWeight(this.strokeWeightTarget);
     stroke(this.c, this.volume * 30);
+    if (random(1) > 0.98) line(0, 0, 30, 0);
     line(0, 0, lengthTrait, 0);
     lengthTrait = ease(lengthTrait, this.lengthTraitTarget, 0.1);
     transp = ease(transp, transpTarget, 0.7);
@@ -340,6 +343,14 @@ function toggleControls() {
   }
 }
 
+// Disable scrolling on mobile.
 function touchMoved() {
   return false;
 }
+
+// iOS Web Audio requires user-input before instantiation!
+// var silent = new Sound('/assets/silent.mp3', function() {
+//   var enableAudio = function () {
+//     silent.play();
+//   };
+// });

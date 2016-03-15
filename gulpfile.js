@@ -4,7 +4,7 @@ var uglify = require('gulp-uglify');
 var cssnano = require('gulp-cssnano');
 var gulpIf = require('gulp-if');
 
-gulp.task('useref', function(){
+gulp.task('dist', function(){
   return gulp.src('index.html')
     .pipe(useref())
     .pipe(gulpIf('*.js', uglify()))
