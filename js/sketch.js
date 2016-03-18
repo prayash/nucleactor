@@ -41,7 +41,7 @@ function loadTrack(url) {
 
   var trackUrl = input.value;
   SC.initialize({ client_id: CLIENT_ID });
-  SC.resolve(trackUrl).then(afterLoad).catch(function(error) {
+  SC.resolve("https://crossorigin.me/" + trackUrl).then(afterLoad).catch(function(error) {
     console.log(error);
     if (error.status === 403) alert("Error: " + "The owner of this track doesn't allow 3rd party streaming. Try another track!");
   });
