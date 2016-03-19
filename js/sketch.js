@@ -26,7 +26,14 @@ var loadingBar = new Mprogress({ template: 3, parent: '#canvas', speed: 0.25, ea
 function preload() {
   showLoading();
   SC.initialize({ client_id: CLIENT_ID });
-  SC.resolve(TRACK_URL).then(afterLoad).catch(function(error) { console.log(error); });
+  SC.resolve(TRACK_URL).then(afterLoad).catch(function(error) {
+    console.log(error);
+    console.log("Loading locally.");
+    theTrack = loadSound('distance.mp3', function() {
+      theTrack.play();
+      doneLoading();
+    });
+  });
 }
 
 function afterLoad(track) {
