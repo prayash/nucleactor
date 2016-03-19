@@ -5,9 +5,10 @@ var CLIENT_ID       = "188bdc288184c969c82a24af4145c999";
 var TRACK_URL       = "https://soundcloud.com/effulgence/distance-3";
 var BUFFER_SIZE     = 1024;
 
-var num             = 90
+var num             = 90;
 var frames          = 480;
 var theta           = 0;
+var dispScalar      = 10;
 
 var colorCounter    = 0;
 var rad             = 150;
@@ -31,7 +32,7 @@ function preload() {
     console.log("Loading locally.");
     theTrack = loadSound('distance.mp3', function() {
       theTrack.play();
-      doneLoading();
+      doneLoading(); toggleControls();
     });
   });
 }
@@ -48,7 +49,7 @@ function loadTrack(url) {
 
   var trackUrl = input.value;
   SC.initialize({ client_id: CLIENT_ID });
-  SC.resolve("https://crossorigin.me/" + trackUrl).then(afterLoad).catch(function(error) {
+  SC.resolve(trackUrl).then(afterLoad).catch(function(error) {
     console.log(error);
     if (error.status === 403) alert("Error: " + "The owner of this track doesn't allow 3rd party streaming. Try another track!");
   });
@@ -62,6 +63,14 @@ function setup() {
   var myCanvas = createCanvas(displayWidth, displayHeight);
   myCanvas.parent('canvas');
   createControls();
+
+  // * User Agent Detection
+  if(navigator.userAgent.match(/iPhone|iPad|iPod|Android/ig)) {
+    console.log("Mobile version.");
+    pixelDensity(1);
+    num = 45;
+    dispScalar = 4;
+  }
 
   fft = new p5.FFT();
   amplitude = new p5.Amplitude();
@@ -202,7 +211,7 @@ function Fragment(_x, _y) {
   this.display = function() {
     for (var i = 0; i < fragments.length; i++) {
       var distance = dist(px, py, fragments[i].px, fragments[i].py);
-      if (distance > 25 && distance < displayWidth / 10) {
+      if (distance > 25 && distance < displayWidth / dispScalar) {
         line(px, py, fragments[i].px, fragments[i].py);
         if (random(1) > 0.8 && volume < 2) {
           fill(255, volume / 1.5);
