@@ -22,7 +22,7 @@ var fragments = [], arcs = [];
 var loadingBar = new Mprogress({ template: 3, parent: '#canvas', speed: 0.25, easing: 0.25 });
 
 // ************************************************************************************
-// * Preload
+// * Preload Audio
 
 function preload() {
   showLoading();
@@ -32,7 +32,8 @@ function preload() {
     console.log("Loading locally.");
     theTrack = loadSound('distance.mp3', function() {
       theTrack.play();
-      doneLoading(); toggleControls();
+      doneLoading();
+      toggleControls();
     });
   });
 }
@@ -222,6 +223,8 @@ function Fragment(_x, _y) {
   }
 }
 
+// ************************************************************************************
+
 // * Arc
 function Arc(_range) {
   var numTraits, lengthTrait, range, strokeWeight, depart, spaceTrait, c;
@@ -299,6 +302,7 @@ var ease = function(variable, target, easingVal) {
   return variable;
 }
 
+// * Utilitarian Helpers
 // ************************************************************************************
 
 function windowResized() {
@@ -327,14 +331,6 @@ function doneLoading() {
   loadingBar.end();
 }
 
-function mousePressed() {
-  if (mouseY > 50 && mouseY < windowHeight - 100) {
-    var fs = fullscreen();
-    fullscreen(!fs);
-    toggleControls();
-  }
-}
-
 function createControls() {
   controls = true;
   hud = document.getElementById('hud');
@@ -359,14 +355,27 @@ function toggleControls() {
   }
 }
 
+// * Events
+// ************************************************************************************
+
+function mousePressed() {
+  if (mouseY > 50 && mouseY < windowHeight - 100) {
+    var fs = fullscreen();
+    fullscreen(!fs);
+    toggleControls();
+  }
+}
+
+// * Mobile Events
+// ************************************************************************************
+
 // Disable scrolling on mobile.
 function touchMoved() {
   return false;
 }
 
-// iOS Web Audio requires user-input before instantiation!
-// var silent = new Sound('/assets/silent.mp3', function() {
-//   var enableAudio = function () {
-//     silent.play();
-//   };
-// });
+function touchEnded() {
+  if (touchY > 50 && mouseY < windowHeight - 100) {
+    toggleControls();
+  }
+}
