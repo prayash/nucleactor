@@ -43,13 +43,12 @@ function afterLoad(track) {
   theTrack = loadSound(streamUrl, function(loadedTrack) { theTrack.play(); doneLoading(); displayInfo(track); });
 }
 
-function loadTrack(url) {
+function loadTrack() {
   theTrack.stop();
   showLoading();
   trackInfo.remove();
 
   var trackUrl = input.value;
-  SC.initialize({ client_id: CLIENT_ID });
   SC.resolve(trackUrl).then(afterLoad).catch(function(error) {
     console.log(error);
     if (error.status === 403) alert("Error: " + "The owner of this track doesn't allow 3rd party streaming. Try another track!");
@@ -335,7 +334,7 @@ function createControls() {
   controls = true;
   hud = document.getElementById('hud');
   input = document.getElementById('trackInput');
-  input.value = "https://soundcloud.com/madeon/pay-no-mind";
+  input.value = "https://soundcloud.com/upscale-recordings/raine-clockvice-wonderful";
   button = document.getElementById('goButton');
 
   text = createP('<strong>Nucleactor</strong> is an audio visualizer created by Prayash Thapa (<strong><a href="http://effulgence.io" target="_blank">effulgence.io</a></strong>).<br>Chrome / Firefox recommended! Click anywhere for FULLSCREEN.');
