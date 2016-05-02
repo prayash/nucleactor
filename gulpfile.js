@@ -5,9 +5,9 @@ var cssnano = require('gulp-cssnano');
 var gulpIf = require('gulp-if');
 
 gulp.task('dist', function(){
-  return gulp.src('index.html')
+  return gulp.src('src/index.html')
     .pipe(useref())
-    .pipe(gulpIf('*.js', uglify()))
-    .pipe(gulpIf('*.css', cssnano()))
+    .pipe(gulpIf('src/*.js', uglify()))
+    .pipe(gulpIf('src/*.css', cssnano()))
     .pipe(gulp.dest('dist'))
 });
