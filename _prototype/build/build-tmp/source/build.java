@@ -179,7 +179,6 @@ public void draw() {
     }
 
   popMatrix();
-  // --- End Nucleus -- //
 
   // ---------------
   // Visualizer
