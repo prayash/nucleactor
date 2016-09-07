@@ -149,12 +149,12 @@ function draw() {
 
     // * Waveform
     stroke(255, (volume * 20 + lows * 5));
-    for (var i = 0; i < waveform.length - 1; i += 16) {
+    for (var i = 0; i < waveform.length - 1; i += 2) {
       var x = (r) * sin(i * 2 * PI/waveform.length);
       var y = (r) * cos(i * 2 * PI/waveform.length);
       var x2 = (r + waveform[i] * 80) * sin(i * 2 * PI/waveform.length);
       var y2 = (r + waveform[i] * 80) * cos(i * 2 * PI/waveform.length);
-      strokeWeight(volume * 5);
+      strokeWeight(2);
       strokeCap(SQUARE);
       line(x, y, x2, y2);
     }
