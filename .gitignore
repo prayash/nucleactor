@@ -8,3 +8,4 @@ platforms
 *.swo
 *.log
 *.DS_Store
+dist/
