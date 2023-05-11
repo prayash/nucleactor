@@ -421,7 +421,10 @@ function toggleControls() {
 
 function mousePressed() {
   if (mouseY > 50 && mouseY < windowHeight - 100) {
-    audio.play()
+    if (!audio._playing) {
+      displayInfo({ title: 'Distance', user: { username: 'Effulgence' } })
+      audio.play()
+    }
   }
 }
 
